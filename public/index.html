@@ -173,6 +173,25 @@
   .team li.done .n{color:var(--agua)}
   .team li.done .bar i{opacity:1}
 
+  .marks{list-style:none; margin:0; padding:0; display:grid; gap:0}
+  .marks li{
+    display:grid; grid-template-columns:minmax(58px,auto) 14px 1fr; align-items:baseline; gap:10px;
+    padding:10px 0; border-bottom:1px solid rgba(185,200,204,.55);
+  }
+  .marks li:last-child{border-bottom:0}
+  .marks .who{font-size:15px; color:var(--ink-soft)}
+  .marks .arrow{color:var(--hairline); font-size:13px}
+  .marks .rival{
+    font-family:var(--display); font-weight:700; font-size:1.35rem; line-height:1;
+    text-transform:uppercase; letter-spacing:.01em;
+  }
+  .marks li.me .who{color:var(--ink); font-weight:600}
+  .marks li.me .rival{color:var(--agua)}
+  .marks li.gk .rival{
+    font-family:var(--body); font-weight:500; font-size:14px;
+    text-transform:none; letter-spacing:0; color:var(--ink-soft); line-height:1.4;
+  }
+
   footer{margin-top:44px; font-size:12px; color:var(--ink-soft); max-width:44ch}
   .err{color:var(--endgame)}
   :focus-visible{outline:2px solid var(--accent); outline-offset:3px}
@@ -245,6 +264,12 @@
     <p class="label">el equipo hoy</p>
     <ul class="team" id="team"></ul>
     <p class="sub" id="syncMsg">Conectando…</p>
+  </section>
+
+  <section class="block">
+    <p class="label">plan de juego · marca individual</p>
+    <ul class="marks" id="marks"></ul>
+    <p class="sub">Cada uno con el suyo todo el partido. Si hay cambio, la marca se pasa, no se abandona.</p>
   </section>
 
   <footer>La cuenta regresiva usa la hora de este dispositivo. Los vasos se guardan en el servidor, se comparten con el equipo y arrancan de cero cada día.</footer>
@@ -452,6 +477,8 @@
     Array.prototype.forEach.call(optsEl.querySelectorAll('.opt'), function(b, i){
       b.setAttribute('aria-pressed', row && row.snack === i ? 'true' : 'false');
     });
+
+    renderMarks();
   }
 
   addBtn.addEventListener('click', function(){
@@ -478,6 +505,29 @@
     lastLocalChange = Date.now();
     renderMine(); push();
   });
+
+  /* ---------- plan de juego ---------- */
+  var MARCAS = [
+    { who:'Yago',  rival:'Juanchi' },
+    { who:'Maxi',  rival:'Negro' },
+    { who:'Nacho', rival:'Mudo' },
+    { who:'Joaco', rival:'Facu' },
+    { who:'Jere',  rival:'Arranca al arco. Cuando entre, toma la marca del que sale.', gk:true }
+  ];
+  var marksEl = document.getElementById('marks');
+
+  function renderMarks(){
+    marksEl.innerHTML = '';
+    MARCAS.forEach(function(m){
+      var li = document.createElement('li');
+      li.className = (m.who === me ? 'me ' : '') + (m.gk ? 'gk' : '');
+      li.innerHTML = '<span class="who"></span><span class="arrow">' + (m.gk ? '·' : '&#8594;') + '</span><span class="rival"></span>';
+      li.querySelector('.who').textContent = m.who;
+      li.querySelector('.rival').textContent = m.rival;
+      marksEl.appendChild(li);
+    });
+  }
+  renderMarks();
 
   /* ---------- reloj y fases ---------- */
   function nextSip(now){
