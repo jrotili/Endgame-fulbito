@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Countdown para el Endgame</title>
+<meta name="color-scheme" content="light">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;700;800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#E9EFF0;
+    --paper-2:#DBE4E6;
+    --ink:#0D2127;
+    --ink-soft:#5A757F;
+    --hairline:#B9C8CC;
+    --agua:#0E8FA0;
+    --snack:#C97614;
+    --endgame:#C7274F;
+    --accent:var(--ink-soft);
+    --display:'Big Shoulders Display','Arial Narrow','Helvetica Neue',sans-serif;
+    --body:'Instrument Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --rail:64px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--body);
+    font-size:16px;
+    line-height:1.5;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  body[data-phase="agua"]{--accent:var(--agua)}
+  body[data-phase="snack"]{--accent:var(--snack)}
+  body[data-phase="final"]{--accent:var(--agua)}
+  body[data-phase="endgame"]{--accent:var(--endgame)}
+
+  /* ---- marea: la página se llena de agua hacia las 19 ---- */
+  .tide{
+    position:fixed; left:0; right:0; bottom:0; height:0;
+    background:linear-gradient(to top,rgba(14,143,160,.20),rgba(14,143,160,.09));
+    transition:height 1s linear;
+    pointer-events:none; z-index:0;
+  }
+  .tide::after{
+    content:""; position:absolute; left:0; right:0; top:0; height:1px;
+    background:var(--agua); opacity:.55;
+  }
+  .wave{
+    position:absolute; left:0; top:-14px; width:200%; height:14px;
+    fill:rgba(14,143,160,.13);
+    animation:drift 11s linear infinite;
+  }
+  .wave.b{animation-duration:17s; animation-direction:reverse; fill:rgba(14,143,160,.09)}
+  @keyframes drift{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+  /* ---- regla graduada de la tarde ---- */
+  .gauge{
+    position:fixed; left:0; top:0; bottom:0; width:var(--rail);
+    z-index:1; pointer-events:none;
+    border-right:1px solid var(--hairline);
+  }
+  .tick{position:absolute; left:0; right:0; transform:translateY(50%)}
+  .tick i{position:absolute; right:0; bottom:0; width:14px; height:1px; background:var(--hairline); display:block}
+  .tick b{
+    position:absolute; right:20px; bottom:-8px;
+    font-family:var(--display); font-weight:700; font-size:17px;
+    letter-spacing:.02em; color:var(--ink-soft);
+  }
+  .tick.on b{color:var(--accent)}
+  .tick.on i{background:var(--accent); width:22px}
+
+  /* ---- contenido ---- */
+  main{
+    position:relative; z-index:2;
+    padding:34px calc(var(--rail) - 22px) 60px calc(var(--rail) + 14px);
+    max-width:760px;
+  }
+  .eyebrow{font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--ink-soft); margin:0 0 14px}
+  h1{
+    font-family:var(--display); font-weight:800;
+    font-size:clamp(2.4rem,11vw,4.2rem); line-height:.86;
+    letter-spacing:-.01em; text-transform:uppercase;
+    margin:0 0 26px; max-width:11ch;
+  }
+  h1 em{font-style:normal; color:var(--accent)}
+
+  .clock{margin:0 0 8px}
+  .digits{
+    font-family:var(--display); font-weight:800;
+    font-size:clamp(4rem,25vw,9.5rem); line-height:.8;
+    letter-spacing:-.02em; font-variant-numeric:tabular-nums;
+    display:block; margin:0;
+  }
+  .digits .s{color:var(--accent)}
+  .clock p{margin:10px 0 0; font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft)}
+
+  .card{border-top:2px solid var(--accent); padding:18px 0 22px; margin:30px 0 0}
+  .card h2{
+    font-family:var(--display); font-weight:700; text-transform:uppercase;
+    font-size:1.7rem; line-height:1; letter-spacing:.01em; margin:0 0 8px; color:var(--accent);
+  }
+  .card p{margin:0; max-width:46ch}
+  .sub{color:var(--ink-soft); font-size:14px; margin-top:10px !important}
+
+  .beat{
+    display:inline-block; width:9px; height:9px; border-radius:50%;
+    background:var(--accent); margin-right:9px; vertical-align:2px;
+    animation:pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.75)}}
+
+  section.block{margin:34px 0 0; border-top:1px solid var(--hairline); padding-top:16px}
+  .label{font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--ink-soft); margin:0 0 14px}
+
+  .opts{list-style:none; margin:0; padding:0; display:grid; gap:8px}
+  .opt{
+    display:flex; align-items:baseline; gap:12px; width:100%;
+    background:none; border:1px solid var(--hairline); border-radius:2px;
+    padding:12px 14px; text-align:left; cursor:pointer; font:inherit; color:var(--ink);
+    transition:border-color .15s, background .15s;
+  }
+  .opt:hover{border-color:var(--snack)}
+  .opt span{font-family:var(--display); font-weight:700; font-size:15px; color:var(--ink-soft)}
+  .opt[aria-pressed="true"]{background:rgba(201,118,20,.12); border-color:var(--snack)}
+  .opt[aria-pressed="true"] span{color:var(--snack)}
+
+  .chips{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px}
+  .chip{
+    font:inherit; font-size:15px; cursor:pointer; color:var(--ink);
+    background:none; border:1px solid var(--hairline); border-radius:100px; padding:7px 15px;
+    transition:border-color .15s, background .15s, color .15s;
+  }
+  .chip:hover{border-color:var(--agua)}
+  .chip[aria-pressed="true"]{background:var(--agua); border-color:var(--agua); color:#fff}
+
+  .counter{display:flex; align-items:center; gap:16px; flex-wrap:wrap}
+  .counter button{
+    font:inherit; font-weight:600; cursor:pointer;
+    background:var(--agua); color:#fff; border:0; border-radius:2px; padding:11px 18px;
+  }
+  .counter button.ghost{background:none; color:var(--ink-soft); padding:11px 4px; text-decoration:underline}
+  .counter button[disabled]{opacity:.4; cursor:not-allowed}
+  .tally{font-family:var(--display); font-weight:800; font-size:2.2rem; line-height:1; color:var(--agua)}
+  .tally .of{color:var(--ink-soft); font-weight:700}
+  .tally small{
+    font-family:var(--body); font-weight:500; font-size:13px; color:var(--ink-soft);
+    letter-spacing:.1em; text-transform:uppercase; margin-left:8px;
+  }
+
+  /* ---- los 8 vasos que se van llenando ---- */
+  .glasses{display:flex; gap:9px; margin:0 0 20px; flex-wrap:wrap}
+  .glass{width:30px; height:42px; overflow:visible}
+  .glass .outline{stroke:var(--hairline); stroke-width:1.6; fill:none; stroke-linejoin:round; stroke-linecap:round}
+  .glass .water{fill:var(--agua); opacity:.75; transform:translateY(34px); transition:transform .5s cubic-bezier(.4,1.3,.5,1)}
+  .glass.full .outline{stroke:var(--agua)}
+  .glass.full .water{transform:translateY(4px)}
+  .glasses[data-done="true"] .glass .water{opacity:1}
+
+  .team{list-style:none; margin:0; padding:0; display:grid; gap:2px}
+  .team li{display:grid; grid-template-columns:minmax(72px,auto) 1fr auto; align-items:center; gap:12px; padding:7px 0}
+  .team .name{font-size:15px; color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .team .bar{height:3px; background:var(--paper-2); position:relative}
+  .team .bar i{position:absolute; left:0; top:0; bottom:0; background:var(--agua); opacity:.55; transition:width .4s ease}
+  .team .n{font-family:var(--display); font-weight:800; font-size:1.25rem; color:var(--ink-soft); font-variant-numeric:tabular-nums}
+  .team li.me .name{color:var(--ink); font-weight:600}
+  .team li.me .n{color:var(--agua)}
+  .team li.me .bar i{opacity:1}
+  .team li.done .n{color:var(--agua)}
+  .team li.done .bar i{opacity:1}
+
+  footer{margin-top:44px; font-size:12px; color:var(--ink-soft); max-width:44ch}
+  .err{color:var(--endgame)}
+  :focus-visible{outline:2px solid var(--accent); outline-offset:3px}
+
+  @media (max-width:520px){
+    :root{--rail:46px}
+    .tick b{font-size:14px; right:18px}
+    main{padding-right:18px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .wave,.beat{animation:none}
+    .tide{transition:none}
+    .team .bar i{transition:none}
+    .glass .water{transition:none}
+  }
+</style>
+</head>
+<body data-phase="pre">
+
+<div class="tide" id="tide">
+  <svg class="wave" viewBox="0 0 240 14" preserveAspectRatio="none" aria-hidden="true"><path d="M0 8 Q30 0 60 8 T120 8 T180 8 T240 8 V14 H0Z"/></svg>
+  <svg class="wave b" viewBox="0 0 240 14" preserveAspectRatio="none" aria-hidden="true"><path d="M0 7 Q30 14 60 7 T120 7 T180 7 T240 7 V14 H0Z"/></svg>
+</div>
+
+<div class="gauge" id="gauge" aria-hidden="true"></div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs><clipPath id="glassClip"><path d="M2 2 H22 L18 32 H6 Z"/></clipPath></defs>
+</svg>
+
+<main>
+  <p class="eyebrow" id="fecha">plan de tarde</p>
+  <h1>Countdown para el <em>Endgame</em></h1>
+
+  <div class="clock">
+    <strong class="digits" id="digits" role="timer">--:--:--</strong>
+    <p id="clockLabel">faltan para las 19:00</p>
+  </div>
+
+  <div class="card" aria-live="polite">
+    <h2 id="phaseTitle">Fase previa</h2>
+    <p id="phaseText">Cargando la hora…</p>
+    <p class="sub" id="phaseSub"></p>
+  </div>
+
+  <section class="block">
+    <p class="label">17:00 – 17:30 · snack liviano — elegí uno</p>
+    <ul class="opts" id="opts">
+      <li><button class="opt" aria-pressed="false"><span>01</span> Una banana</button></li>
+      <li><button class="opt" aria-pressed="false"><span>02</span> Un puñado de pasas</button></li>
+      <li><button class="opt" aria-pressed="false"><span>03</span> Una barrita de cereal</button></li>
+      <li><button class="opt" aria-pressed="false"><span>04</span> Un par de tostadas con mermelada o miel</button></li>
+    </ul>
+    <p class="sub">Chico y básicamente hidratos. Nada de grasa, fritura ni fibra de más.</p>
+  </section>
+
+  <section class="block">
+    <p class="label" id="whoLabel">¿quién sos?</p>
+    <div class="chips" id="chips"></div>
+    <div class="glasses" id="glasses" data-done="false" aria-hidden="true"></div>
+    <div class="counter">
+      <span class="tally"><span id="tally">0</span><span class="of" id="ofTxt">/8</span><small>vasos</small></span>
+      <button id="addGlass" disabled>Tomé un vaso</button>
+      <button class="ghost" id="resetGlass" disabled>Reiniciar</button>
+    </div>
+    <p class="sub" id="waterHint">Elegí tu nombre para empezar a contar.</p>
+  </section>
+
+  <section class="block">
+    <p class="label">el equipo hoy</p>
+    <ul class="team" id="team"></ul>
+    <p class="sub" id="syncMsg">Conectando…</p>
+  </section>
+
+  <footer>La cuenta regresiva usa la hora de este dispositivo. Los vasos se guardan en el servidor, se comparten con el equipo y arrancan de cero cada día.</footer>
+</main>
+
+<script>
+(function(){
+  var DIA = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+  var MES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+  var digits = document.getElementById('digits');
+  var clockLabel = document.getElementById('clockLabel');
+  var phaseTitle = document.getElementById('phaseTitle');
+  var phaseText = document.getElementById('phaseText');
+  var phaseSub = document.getElementById('phaseSub');
+  var tide = document.getElementById('tide');
+  var gauge = document.getElementById('gauge');
+  var tallyEl = document.getElementById('tally');
+  var waterHint = document.getElementById('waterHint');
+  var chipsEl = document.getElementById('chips');
+  var teamEl = document.getElementById('team');
+  var syncMsg = document.getElementById('syncMsg');
+  var optsEl = document.getElementById('opts');
+  var glassesEl = document.getElementById('glasses');
+  var ofTxt = document.getElementById('ofTxt');
+  var addBtn = document.getElementById('addGlass');
+  var resetBtn = document.getElementById('resetGlass');
+
+  function pad(n){ return (n<10?'0':'') + n; }
+  function at(h, m){ var d = new Date(); d.setHours(h, m||0, 0, 0); return d; }
+
+  var now0 = new Date();
+  document.getElementById('fecha').textContent =
+    DIA[now0.getDay()] + ' ' + now0.getDate() + ' de ' + MES[now0.getMonth()] + ' · plan de tarde';
+
+  /* ---------- regla de la tarde: 13:00 abajo, 19:00 arriba ---------- */
+  var RAIL_START = 13, RAIL_END = 19;
+  function pct(h, m){ return ((h + (m||0)/60) - RAIL_START) / (RAIL_END - RAIL_START) * 100; }
+  [{h:14,m:0,t:'14',k:'agua'},{h:17,m:0,t:'17',k:'snack'},{h:17,m:30,t:'17:30',k:'final'},{h:19,m:0,t:'19',k:'endgame'}]
+    .forEach(function(mk){
+      var el = document.createElement('div');
+      el.className = 'tick';
+      el.dataset.key = mk.k;
+      el.style.bottom = pct(mk.h, mk.m) + '%';
+      el.innerHTML = '<i></i><b>' + mk.t + '</b>';
+      gauge.appendChild(el);
+    });
+
+  /* ---------- estado compartido ---------- */
+  var GOAL = 8;             // meta de vasos por persona (la manda el servidor)
+  var me = null;            // nombre elegido en este dispositivo
+  var members = [];         // [{name, glasses, last, snack}]
+  var lastLocalChange = 0;  // para no pisar lo propio con una lectura vieja
+  var pushTimer = null;
+  var token = null;
+
+  function local(k, v){
+    try {
+      if(v === undefined) return window.localStorage.getItem(k);
+      window.localStorage.setItem(k, v);
+    } catch(e){ return null; }
+  }
+  me = local('endgame:me');
+  token = local('endgame:token');
+
+  function mine(){
+    for(var i=0;i<members.length;i++) if(members[i].name === me) return members[i];
+    return null;
+  }
+
+  function headers(){
+    var h = { 'content-type':'application/json' };
+    if(token) h['x-team-token'] = token;
+    return h;
+  }
+
+  function say(msg, isErr){
+    syncMsg.textContent = msg;
+    syncMsg.classList.toggle('err', !!isErr);
+  }
+
+  function apply(data, keepMine){
+    if(!data || !data.members) return;
+    if(data.goal > 0){ GOAL = data.goal; ofTxt.textContent = '/' + GOAL; }
+    var previous = keepMine ? mine() : null;
+    members = data.members;
+    if(previous){
+      var row = mine();
+      if(row){ row.glasses = previous.glasses; row.last = previous.last; row.snack = previous.snack; }
+    }
+    renderChips();
+    renderTeam();
+    renderMine();
+  }
+
+  function pull(){
+    fetch('/api/state', { cache:'no-store' })
+      .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function(data){
+        apply(data, Date.now() - lastLocalChange < 90000);
+        say('Al día. Se actualiza solo cada 30 segundos.');
+      })
+      .catch(function(){
+        say('Sin conexión con el servidor. Lo que anotes ahora puede no guardarse.', true);
+      });
+  }
+
+  function push(){
+    var row = mine();
+    if(!row) return;
+    clearTimeout(pushTimer);
+    pushTimer = setTimeout(function(){
+      fetch('/api/state', {
+        method:'PUT',
+        headers: headers(),
+        body: JSON.stringify({ member: row.name, glasses: row.glasses, last: row.last, snack: row.snack })
+      })
+      .then(function(r){
+        if(r.status === 401){
+          var t = window.prompt('Token del equipo:');
+          if(t){ token = t; local('endgame:token', t); push(); }
+          throw new Error('401');
+        }
+        if(!r.ok) throw new Error(r.status);
+        return r.json();
+      })
+      .then(function(data){ apply(data, true); say('Guardado.'); })
+      .catch(function(){ say('No se pudo guardar. Probá de nuevo en un momento.', true); });
+    }, 400);
+  }
+
+  /* ---------- render ---------- */
+  function renderChips(){
+    chipsEl.innerHTML = '';
+    members.forEach(function(m){
+      var b = document.createElement('button');
+      b.className = 'chip';
+      b.type = 'button';
+      b.textContent = m.name;
+      b.setAttribute('aria-pressed', m.name === me ? 'true' : 'false');
+      b.addEventListener('click', function(){
+        me = (me === m.name) ? null : m.name;
+        local('endgame:me', me || '');
+        renderChips(); renderTeam(); renderMine();
+      });
+      chipsEl.appendChild(b);
+    });
+  }
+
+  function renderTeam(){
+    teamEl.innerHTML = '';
+    members.forEach(function(m){
+      var li = document.createElement('li');
+      li.className = (m.name === me ? 'me ' : '') + (m.glasses >= GOAL ? 'done' : '');
+      li.innerHTML = '<span class="name"></span><span class="bar"><i></i></span><span class="n"></span>';
+      li.querySelector('.name').textContent = m.name;
+      li.querySelector('.bar i').style.width = Math.min(100, m.glasses / GOAL * 100) + '%';
+      li.querySelector('.n').textContent = m.glasses + '/' + GOAL;
+      teamEl.appendChild(li);
+    });
+  }
+
+  function renderGlasses(n){
+    if(glassesEl.childElementCount !== GOAL){
+      glassesEl.innerHTML = '';
+      for(var i = 0; i < GOAL; i++){
+        glassesEl.insertAdjacentHTML('beforeend',
+          '<svg class="glass" viewBox="0 0 24 36">' +
+            '<g clip-path="url(#glassClip)"><rect class="water" x="0" y="0" width="24" height="34"/></g>' +
+            '<path class="outline" d="M2 2 L6 32 H18 L22 2"/>' +
+          '</svg>');
+      }
+    }
+    Array.prototype.forEach.call(glassesEl.children, function(g, i){
+      g.classList.toggle('full', i < n);
+    });
+    glassesEl.dataset.done = n >= GOAL ? 'true' : 'false';
+  }
+
+  function renderMine(){
+    var row = mine();
+    var n = row ? row.glasses : 0;
+    addBtn.disabled = !row || n >= GOAL;
+    resetBtn.disabled = !row;
+    tallyEl.textContent = n;
+    ofTxt.textContent = '/' + GOAL;
+    renderGlasses(n);
+
+    var ultimo = '';
+    if(row && row.last){
+      var t = new Date(row.last);
+      ultimo = ' Último a las ' + pad(t.getHours()) + ':' + pad(t.getMinutes()) + '.';
+    }
+
+    if(!row){
+      waterHint.textContent = 'Elegí tu nombre para empezar a contar.';
+    } else if(n >= GOAL){
+      waterHint.textContent = 'Los ' + GOAL + ' vasos, listos.' + ultimo + ' Si tomás más, mejor, pero el contador se queda acá.';
+    } else if(n === 0){
+      waterHint.textContent = 'Vas 0 de ' + GOAL + '. Sorbos regulares, no un litro de golpe.';
+    } else {
+      waterHint.textContent = 'Te faltan ' + (GOAL - n) + ' para llegar a ' + GOAL + '.' + ultimo;
+    }
+
+    Array.prototype.forEach.call(optsEl.querySelectorAll('.opt'), function(b, i){
+      b.setAttribute('aria-pressed', row && row.snack === i ? 'true' : 'false');
+    });
+  }
+
+  addBtn.addEventListener('click', function(){
+    var row = mine(); if(!row || row.glasses >= GOAL) return;
+    row.glasses++; row.last = Date.now();
+    lastLocalChange = Date.now();
+    renderTeam(); renderMine(); push();
+  });
+
+  resetBtn.addEventListener('click', function(){
+    var row = mine(); if(!row) return;
+    row.glasses = 0; row.last = null;
+    lastLocalChange = Date.now();
+    renderTeam(); renderMine(); push();
+  });
+
+  optsEl.addEventListener('click', function(e){
+    var btn = e.target.closest('.opt');
+    if(!btn) return;
+    var row = mine();
+    if(!row){ say('Elegí tu nombre primero para guardar el snack.', true); return; }
+    var i = Array.prototype.indexOf.call(this.querySelectorAll('.opt'), btn);
+    row.snack = (row.snack === i) ? null : i;
+    lastLocalChange = Date.now();
+    renderMine(); push();
+  });
+
+  /* ---------- reloj y fases ---------- */
+  function nextSip(now){
+    var slot = (Math.floor(now.getMinutes()/20) + 1) * 20;
+    var t = new Date(now.getTime());
+    t.setSeconds(0,0);
+    if(slot >= 60){ t.setHours(t.getHours()+1); t.setMinutes(0); }
+    else { t.setMinutes(slot); }
+    return Math.max(0, Math.round((t - now)/60000));
+  }
+
+  function tick(){
+    var now = new Date();
+    var diff = at(19,0) - now;
+
+    if(diff > 0){
+      var s = Math.floor(diff/1000);
+      digits.innerHTML = pad(Math.floor(s/3600)) + ':' + pad(Math.floor((s%3600)/60)) + ':<span class="s">' + pad(s%60) + '</span>';
+      clockLabel.textContent = 'faltan para las 19:00';
+    } else {
+      digits.innerHTML = '<span class="s">00:00:00</span>';
+      clockLabel.textContent = 'son las 19:00';
+    }
+
+    var p = (now - at(RAIL_START,0)) / (at(RAIL_END,0) - at(RAIL_START,0)) * 100;
+    tide.style.height = Math.max(0, Math.min(100, p)) + '%';
+
+    var phase;
+    if(diff <= 0) phase = 'endgame';
+    else if(now >= at(17,30)) phase = 'final';
+    else if(now >= at(17,0)) phase = 'snack';
+    else if(now >= at(14,0)) phase = 'agua';
+    else phase = 'pre';
+    document.body.dataset.phase = phase;
+
+    var order = ['pre','agua','snack','final','endgame'];
+    Array.prototype.forEach.call(gauge.children, function(el){
+      el.classList.toggle('on', order.indexOf(el.dataset.key) <= order.indexOf(phase));
+    });
+
+    var sip = nextSip(now);
+    var sipTxt = sip === 0 ? 'ahora' : 'en ' + sip + ' min';
+
+    if(phase === 'pre'){
+      phaseTitle.textContent = 'Todavía tranquilo';
+      phaseText.textContent = 'La hidratación arranca a las 14:00.';
+      phaseSub.textContent = 'Faltan ' + Math.ceil((at(14,0) - now)/60000) + ' min para eso. Hasta ahí, comé y tomá normal.';
+    } else if(phase === 'agua'){
+      phaseTitle.innerHTML = '<span class="beat"></span>Tomá agua';
+      phaseText.textContent = 'Un vaso ahora y sorbos regulares hasta la hora.';
+      phaseSub.textContent = 'Próximo sorbo ' + sipTxt + ' · snack liviano a las 17:00.';
+    } else if(phase === 'snack'){
+      phaseTitle.innerHTML = '<span class="beat"></span>Ventana de snack';
+      phaseText.textContent = 'Algo chico y básicamente hidratos: banana, pasas, barrita, o tostadas con mermelada o miel.';
+      phaseSub.textContent = 'La ventana cierra en ' + Math.ceil((at(17,30) - now)/60000) + ' min. Seguí con agua igual.';
+    } else if(phase === 'final'){
+      phaseTitle.innerHTML = '<span class="beat"></span>Solo agua';
+      phaseText.textContent = 'Se cerró la comida. De acá al Endgame, sorbos chicos nada más.';
+      phaseSub.textContent = 'Próximo sorbo ' + sipTxt + '.';
+    } else {
+      phaseTitle.textContent = 'Es la hora';
+      phaseText.textContent = 'Endgame.';
+      phaseSub.textContent = '';
+    }
+  }
+
+  tick();
+  setInterval(tick, 1000);
+
+  pull();
+  setInterval(pull, 30000);
+  document.addEventListener('visibilitychange', function(){
+    if(document.visibilityState === 'visible') pull();
+  });
+})();
+</script>
+</body>
+</html>
