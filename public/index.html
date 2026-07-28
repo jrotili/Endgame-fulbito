@@ -158,6 +158,7 @@
   .glass .outline{stroke:var(--hairline); stroke-width:1.6; fill:none; stroke-linejoin:round; stroke-linecap:round}
   .glass .water{fill:var(--agua); opacity:.75; transform:translateY(34px); transition:transform .5s cubic-bezier(.4,1.3,.5,1)}
   .glass.full .outline{stroke:var(--agua)}
+  .glass.due .outline{stroke:var(--snack); stroke-dasharray:3.5 3}
   .glass.full .water{transform:translateY(4px)}
   .glasses[data-done="true"] .glass .water{opacity:1}
 
@@ -166,6 +167,12 @@
   .team .name{font-size:15px; color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
   .team .bar{height:3px; background:var(--paper-2); position:relative}
   .team .bar i{position:absolute; left:0; top:0; bottom:0; background:var(--agua); opacity:.55; transition:width .4s ease}
+  .team .bar u{
+    position:absolute; top:-4px; bottom:-4px; width:1px; background:var(--ink-soft);
+    opacity:.65; transition:left .4s ease;
+  }
+  .team li.behind .bar i{background:var(--snack)}
+  .team li.behind .n{color:var(--snack)}
   .team .n{font-family:var(--display); font-weight:800; font-size:1.25rem; color:var(--ink-soft); font-variant-numeric:tabular-nums}
   .team li.me .name{color:var(--ink); font-weight:600}
   .team li.me .n{color:var(--agua)}
@@ -258,12 +265,14 @@
       <button class="ghost" id="resetGlass" disabled>Reiniciar</button>
     </div>
     <p class="sub" id="waterHint">Elegí tu nombre para empezar a contar.</p>
+    <p class="sub" id="pace"></p>
   </section>
 
   <section class="block">
     <p class="label">el equipo hoy</p>
     <ul class="team" id="team"></ul>
     <p class="sub" id="syncMsg">Conectando…</p>
+    <p class="sub" id="paceLegend"></p>
   </section>
 
   <section class="block">
@@ -420,16 +429,21 @@
   }
 
   function renderTeam(){
+    var debe = expectedNow();
     teamEl.innerHTML = '';
     members.forEach(function(m){
       var li = document.createElement('li');
-      li.className = (m.name === me ? 'me ' : '') + (m.glasses >= GOAL ? 'done' : '');
-      li.innerHTML = '<span class="name"></span><span class="bar"><i></i></span><span class="n"></span>';
+      li.className = (m.name === me ? 'me ' : '') +
+                     (m.glasses >= GOAL ? 'done ' : '') +
+                     (m.glasses < debe ? 'behind' : '');
+      li.innerHTML = '<span class="name"></span><span class="bar"><i></i><u></u></span><span class="n"></span>';
       li.querySelector('.name').textContent = m.name;
       li.querySelector('.bar i').style.width = Math.min(100, m.glasses / GOAL * 100) + '%';
+      li.querySelector('.bar u').style.left = Math.min(100, debe / GOAL * 100) + '%';
       li.querySelector('.n').textContent = m.glasses + '/' + GOAL;
       teamEl.appendChild(li);
     });
+    renderPaceLegend();
   }
 
   function renderGlasses(n){
@@ -443,8 +457,10 @@
           '</svg>');
       }
     }
+    var debe = expectedNow();
     Array.prototype.forEach.call(glassesEl.children, function(g, i){
       g.classList.toggle('full', i < n);
+      g.classList.toggle('due', i >= n && i < debe);
     });
     glassesEl.dataset.done = n >= GOAL ? 'true' : 'false';
   }
@@ -464,15 +480,24 @@
       ultimo = ' Último a las ' + pad(t.getHours()) + ':' + pad(t.getMinutes()) + '.';
     }
 
+    var debe = expectedNow();
+    var prox = nextGlassAt();
+
     if(!row){
       waterHint.textContent = 'Elegí tu nombre para empezar a contar.';
     } else if(n >= GOAL){
       waterHint.textContent = 'Los ' + GOAL + ' vasos, listos.' + ultimo + ' Si tomás más, mejor, pero el contador se queda acá.';
-    } else if(n === 0){
-      waterHint.textContent = 'Vas 0 de ' + GOAL + '. Sorbos regulares, no un litro de golpe.';
+    } else if(n < debe){
+      waterHint.textContent = 'Vas ' + n + ' y a esta hora tocan ' + debe + '. Estás ' + (debe - n) + ' atrás.' + ultimo;
+    } else if(debe === 0){
+      waterHint.textContent = 'El ritmo arranca a las 14:00: un vaso cada ' + Math.round(paceStep()/60000) + ' minutos.';
     } else {
-      waterHint.textContent = 'Te faltan ' + (GOAL - n) + ' para llegar a ' + GOAL + '.' + ultimo;
+      waterHint.textContent = 'Vas ' + n + ' y a esta hora tocan ' + debe + '. Al día.' + ultimo;
     }
+
+    document.getElementById('pace').textContent = prox
+      ? 'Próximo vaso a las ' + hhmm(prox) + '. Los ' + GOAL + ' tienen que estar a las ' + pad(PACE_TO[0]) + ':' + pad(PACE_TO[1]) + '.'
+      : 'Ya pasó la hora del último vaso: los ' + GOAL + ' iban hasta las ' + pad(PACE_TO[0]) + ':' + pad(PACE_TO[1]) + '.';
 
     Array.prototype.forEach.call(optsEl.querySelectorAll('.opt'), function(b, i){
       b.setAttribute('aria-pressed', row && row.snack === i ? 'true' : 'false');
@@ -506,6 +531,46 @@
     renderMine(); push();
   });
 
+  /* ---------- ritmo: llegar a la meta a las 18:00 ---------- */
+  var PACE_FROM = [14, 0];   // arranca la hidratación
+  var PACE_TO   = [18, 0];   // a esta hora hay que tener los 8
+
+  function paceStep(){
+    return (at(PACE_TO[0], PACE_TO[1]) - at(PACE_FROM[0], PACE_FROM[1])) / GOAL;
+  }
+
+  /** Cuántos vasos corresponden a una hora dada. */
+  function expectedAt(d){
+    var start = at(PACE_FROM[0], PACE_FROM[1]);
+    if(d < start) return 0;
+    if(d >= at(PACE_TO[0], PACE_TO[1])) return GOAL;
+    return Math.min(GOAL, Math.floor((d - start) / paceStep()) + 1);
+  }
+
+  function expectedNow(){ return expectedAt(new Date()); }
+
+  /** Hora del próximo vaso, o null si ya pasó el último. */
+  function nextGlassAt(){
+    var now = new Date();
+    var start = at(PACE_FROM[0], PACE_FROM[1]);
+    if(now < start) return start;
+    var i = Math.floor((now - start) / paceStep()) + 1;
+    if(i >= GOAL) return null;
+    return new Date(start.getTime() + i * paceStep());
+  }
+
+  function hhmm(d){ return pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+
+  function renderPaceLegend(){
+    var partes = [];
+    for(var h = PACE_FROM[0]; h <= PACE_TO[0]; h++){
+      partes.push(h + ' → ' + expectedAt(at(h, 0)));
+    }
+    document.getElementById('paceLegend').textContent =
+      'La rayita de cada barra es lo que corresponde a esta hora: ' + partes.join(' · ') +
+      '. Uno cada ' + Math.round(paceStep()/60000) + ' minutos.';
+  }
+
   /* ---------- plan de juego ---------- */
   var MARCAS = [
     { who:'Yago',  rival:'Juanchi' },
@@ -530,15 +595,6 @@
   renderMarks();
 
   /* ---------- reloj y fases ---------- */
-  function nextSip(now){
-    var slot = (Math.floor(now.getMinutes()/20) + 1) * 20;
-    var t = new Date(now.getTime());
-    t.setSeconds(0,0);
-    if(slot >= 60){ t.setHours(t.getHours()+1); t.setMinutes(0); }
-    else { t.setMinutes(slot); }
-    return Math.max(0, Math.round((t - now)/60000));
-  }
-
   function tick(){
     var now = new Date();
     var diff = at(19,0) - now;
@@ -568,8 +624,8 @@
       el.classList.toggle('on', order.indexOf(el.dataset.key) <= order.indexOf(phase));
     });
 
-    var sip = nextSip(now);
-    var sipTxt = sip === 0 ? 'ahora' : 'en ' + sip + ' min';
+    var prox = nextGlassAt();
+    var sipTxt = prox ? 'a las ' + hhmm(prox) : 'ya está, era hasta las ' + pad(PACE_TO[0]) + ':' + pad(PACE_TO[1]);
 
     if(phase === 'pre'){
       phaseTitle.textContent = 'Todavía tranquilo';
@@ -577,16 +633,16 @@
       phaseSub.textContent = 'Faltan ' + Math.ceil((at(14,0) - now)/60000) + ' min para eso. Hasta ahí, comé y tomá normal.';
     } else if(phase === 'agua'){
       phaseTitle.innerHTML = '<span class="beat"></span>Tomá agua';
-      phaseText.textContent = 'Un vaso ahora y sorbos regulares hasta la hora.';
-      phaseSub.textContent = 'Próximo sorbo ' + sipTxt + ' · snack liviano a las 17:00.';
+      phaseText.textContent = 'Un vaso cada ' + Math.round(paceStep()/60000) + ' minutos, para tener los ' + GOAL + ' a las ' + pad(PACE_TO[0]) + ':' + pad(PACE_TO[1]) + '.';
+      phaseSub.textContent = 'Próximo vaso ' + sipTxt + ' · snack liviano a las 17:00.';
     } else if(phase === 'snack'){
       phaseTitle.innerHTML = '<span class="beat"></span>Ventana de snack';
       phaseText.textContent = 'Algo chico y básicamente hidratos: banana, pasas, barrita, o tostadas con mermelada o miel.';
       phaseSub.textContent = 'La ventana cierra en ' + Math.ceil((at(17,30) - now)/60000) + ' min. Seguí con agua igual.';
     } else if(phase === 'final'){
       phaseTitle.innerHTML = '<span class="beat"></span>Solo agua';
-      phaseText.textContent = 'Se cerró la comida. De acá al Endgame, sorbos chicos nada más.';
-      phaseSub.textContent = 'Próximo sorbo ' + sipTxt + '.';
+      phaseText.textContent = 'Se cerró la comida. De acá al Endgame, solo agua.';
+      phaseSub.textContent = 'Próximo vaso ' + sipTxt + '.';
     } else {
       phaseTitle.textContent = 'Es la hora';
       phaseText.textContent = 'Endgame.';
@@ -594,8 +650,17 @@
     }
   }
 
+  var ultimoDebe = -1;
+  function watchPace(){
+    var debe = expectedNow();
+    if(debe !== ultimoDebe){
+      ultimoDebe = debe;
+      if(members.length){ renderTeam(); renderMine(); }
+    }
+  }
+
   tick();
-  setInterval(tick, 1000);
+  setInterval(function(){ tick(); watchPace(); }, 1000);
 
   pull();
   setInterval(pull, 30000);
