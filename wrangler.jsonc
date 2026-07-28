@@ -1,0 +1,31 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "endgame-countdown",
+  "main": "./src/index.js",
+  "compatibility_date": "2026-07-28",
+
+  "assets": {
+    "directory": "./public/",
+    "binding": "ASSETS"
+  },
+
+  // Los 5 del equipo, separados por coma. Es la única lista: el worker valida
+  // contra ella y la página dibuja los botones a partir de ella.
+  // GOAL es la meta diaria de vasos por persona.
+  "vars": {
+    "MEMBERS": "Joaco,Jere,Maxi,Yago,Nacho",
+    "GOAL": "8",
+    "TIMEZONE": "America/Argentina/Buenos_Aires"
+  },
+
+  // Reemplazá "id" por el que te devuelve:
+  //   npx wrangler kv namespace create AGUA
+  "kv_namespaces": [
+    {
+      "binding": "AGUA",
+      "id": "PEGA_ACA_EL_ID_DEL_NAMESPACE"
+    }
+  ],
+
+  "observability": { "enabled": true }
+}
