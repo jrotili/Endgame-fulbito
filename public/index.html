@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>De hoy a mañana 20:00</title>
+<title>De hoy a mañana 20:00 · 2.0 Eta locura</title>
 <meta name="color-scheme" content="light dark">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -113,7 +113,15 @@
     letter-spacing:-.01em; text-transform:uppercase;
     margin:0 0 26px; max-width:11ch;
   }
+  h1{margin:0 0 10px}
   h1 em{font-style:normal; color:var(--accent)}
+  .ver{
+    font-family:var(--display); font-weight:700; text-transform:uppercase;
+    font-size:clamp(1.1rem,4.5vw,1.6rem); line-height:1;
+    letter-spacing:.03em; color:var(--accent);
+    margin:0 0 26px; display:flex; align-items:center; gap:10px;
+  }
+  .ver::after{content:""; flex:1; height:1px; background:var(--hairline)}
 
   .clock{margin:0 0 8px}
   .digits{
@@ -294,6 +302,7 @@
 <main>
   <p class="eyebrow" id="fecha">plan de comida y agua</p>
   <h1>De hoy a <em>mañana 20:00</em></h1>
+  <p class="ver">2.0 · Eta locura</p>
 
   <div class="clock">
     <strong class="digits" id="digits" role="timer">--:--:--</strong>
@@ -339,6 +348,11 @@
   <section class="block">
     <p class="label">en la cancha</p>
     <ul class="notes">
+      <li>
+        <span class="k">Camiseta</span>
+        <span class="v">Nos toca la de Argentina. El que no la tenga, cualquier remera de color claro.
+        <small>Si sos el último en salir de casa, revisá que no te la estés olvidando.</small></span>
+      </li>
       <li>
         <span class="k">Clima</span>
         <span class="v">Unos 12 °C a la hora del partido y poca chance de lluvia. En frío la sed engaña: vas a transpirar igual y no te vas a dar cuenta.
