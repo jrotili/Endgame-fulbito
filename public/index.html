@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Countdown para el Endgame</title>
-<meta name="color-scheme" content="light">
+<title>De hoy a mañana 20:00</title>
+<meta name="color-scheme" content="light dark">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;700;800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -17,6 +17,7 @@
     --hairline:#B9C8CC;
     --agua:#0E8FA0;
     --snack:#C97614;
+    --noche:#5566A8;
     --endgame:#C7274F;
     --accent:var(--ink-soft);
     --display:'Big Shoulders Display','Arial Narrow','Helvetica Neue',sans-serif;
@@ -33,13 +34,28 @@
     line-height:1.5;
     min-height:100vh;
     -webkit-font-smoothing:antialiased;
+    transition:background .8s ease, color .8s ease;
   }
-  body[data-phase="agua"]{--accent:var(--agua)}
-  body[data-phase="snack"]{--accent:var(--snack)}
-  body[data-phase="final"]{--accent:var(--agua)}
-  body[data-phase="endgame"]{--accent:var(--endgame)}
 
-  /* ---- marea: la página se llena de agua hacia las 19 ---- */
+  /* la tarde y la mañana son de agua; las comidas, ocre; la noche, azul; el partido, rojo */
+  body[data-tag="agua"]{--accent:var(--agua)}
+  body[data-tag="comida"]{--accent:var(--snack)}
+  body[data-tag="noche"]{--accent:var(--noche)}
+  body[data-tag="partido"]{--accent:var(--endgame)}
+
+  /* ---- la página se acuesta con nosotros ---- */
+  body[data-night="true"]{
+    --paper:#0C1A21;
+    --paper-2:#15272F;
+    --ink:#DCE7EA;
+    --ink-soft:#7E97A1;
+    --hairline:#2C424C;
+    --noche:#93A3DC;
+    --agua:#2FA9B9;
+    --snack:#D89033;
+  }
+
+  /* ---- marea: se llena hacia el partido ---- */
   .tide{
     position:fixed; left:0; right:0; bottom:0; height:0;
     background:linear-gradient(to top,rgba(14,143,160,.20),rgba(14,143,160,.09));
@@ -58,11 +74,19 @@
   .wave.b{animation-duration:17s; animation-direction:reverse; fill:rgba(14,143,160,.09)}
   @keyframes drift{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
-  /* ---- regla graduada de la tarde ---- */
+  /* ---- la regla: 29 horas, con la noche plegada ---- */
   .gauge{
     position:fixed; left:0; top:0; bottom:0; width:var(--rail);
     z-index:1; pointer-events:none;
     border-right:1px solid var(--hairline);
+  }
+  .fold{
+    position:absolute; left:0; right:0;
+    background:repeating-linear-gradient(
+      -45deg, transparent 0 5px, rgba(85,102,168,.20) 5px 6px
+    );
+    border-top:1px solid rgba(85,102,168,.35);
+    border-bottom:1px solid rgba(85,102,168,.35);
   }
   .tick{position:absolute; left:0; right:0; transform:translateY(50%)}
   .tick i{position:absolute; right:0; bottom:0; width:14px; height:1px; background:var(--hairline); display:block}
@@ -71,6 +95,8 @@
     font-family:var(--display); font-weight:700; font-size:17px;
     letter-spacing:.02em; color:var(--ink-soft);
   }
+  /* el 20:00 cae en el borde de arriba: el número se cuelga por debajo de la raya */
+  .tick.top b{bottom:-22px}
   .tick.on b{color:var(--accent)}
   .tick.on i{background:var(--accent); width:22px}
 
@@ -117,6 +143,36 @@
   section.block{margin:34px 0 0; border-top:1px solid var(--hairline); padding-top:16px}
   .label{font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--ink-soft); margin:0 0 14px}
 
+  /* ---- el plan hora por hora ---- */
+  .daylabel{
+    font-family:var(--display); font-weight:700; text-transform:uppercase;
+    font-size:1.15rem; letter-spacing:.04em; color:var(--ink-soft);
+    margin:22px 0 6px;
+  }
+  .daylabel:first-of-type{margin-top:0}
+  .plan{list-style:none; margin:0; padding:0}
+  .plan li{
+    display:grid; grid-template-columns:56px 12px 1fr; align-items:start; gap:12px;
+    padding:11px 0; border-bottom:1px solid rgba(185,200,204,.45);
+  }
+  .plan li:last-child{border-bottom:0}
+  .plan .when{
+    font-family:var(--display); font-weight:800; font-size:1.3rem; line-height:1.05;
+    color:var(--ink-soft); font-variant-numeric:tabular-nums;
+  }
+  .plan .dot{
+    width:9px; height:9px; border-radius:50%; margin-top:7px;
+    border:1.5px solid var(--hairline); background:transparent;
+  }
+  .plan .what b{display:block; font-weight:600; font-size:15px; line-height:1.3}
+  .plan .what em{display:block; font-style:normal; font-size:14px; color:var(--ink-soft); margin-top:2px; max-width:44ch}
+  .plan li.past{opacity:.45}
+  .plan li.past .dot{background:var(--hairline); border-color:var(--hairline)}
+  .plan li.now .when{color:var(--accent)}
+  .plan li.now .dot{background:var(--accent); border-color:var(--accent)}
+  .plan li.now .what b{color:var(--accent)}
+
+  /* ---- snack ---- */
   .opts{list-style:none; margin:0; padding:0; display:grid; gap:8px}
   .opt{
     display:flex; align-items:baseline; gap:12px; width:100%;
@@ -129,6 +185,7 @@
   .opt[aria-pressed="true"]{background:rgba(201,118,20,.12); border-color:var(--snack)}
   .opt[aria-pressed="true"] span{color:var(--snack)}
 
+  /* ---- agua ---- */
   .chips{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px}
   .chip{
     font:inherit; font-size:15px; cursor:pointer; color:var(--ink);
@@ -138,41 +195,51 @@
   .chip:hover{border-color:var(--agua)}
   .chip[aria-pressed="true"]{background:var(--agua); border-color:var(--agua); color:#fff}
 
-  .counter{display:flex; align-items:center; gap:16px; flex-wrap:wrap}
-  .counter button{
-    font:inherit; font-weight:600; cursor:pointer;
-    background:var(--agua); color:#fff; border:0; border-radius:2px; padding:11px 18px;
+  /* ---- la fila de vasos: los dos días, uno atrás del otro ---- */
+  .rail{display:flex; flex-wrap:wrap; align-items:flex-end; gap:14px 6px; margin:0 0 18px}
+  .daymark{
+    align-self:stretch; min-height:78px; display:flex; align-items:center;
+    writing-mode:vertical-rl; text-orientation:mixed;
+    font-family:var(--display); font-weight:700; font-size:13px;
+    letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft);
+    border-left:1px solid var(--hairline); padding-left:6px; margin-right:2px;
   }
-  .counter button.ghost{background:none; color:var(--ink-soft); padding:11px 4px; text-decoration:underline}
-  .counter button[disabled]{opacity:.4; cursor:not-allowed}
-  .tally{font-family:var(--display); font-weight:800; font-size:2.2rem; line-height:1; color:var(--agua)}
-  .tally .of{color:var(--ink-soft); font-weight:700}
-  .tally small{
-    font-family:var(--body); font-weight:500; font-size:13px; color:var(--ink-soft);
-    letter-spacing:.1em; text-transform:uppercase; margin-left:8px;
-  }
+  .daymark:first-child{border-left:0; padding-left:0}
 
-  /* ---- los 8 vasos que se van llenando ---- */
-  .glasses{display:flex; gap:9px; margin:0 0 20px; flex-wrap:wrap}
-  .glass{width:30px; height:42px; overflow:visible}
+  .gcell{
+    width:62px; display:flex; flex-direction:column; align-items:center; gap:4px;
+    background:none; border:0; padding:4px 0 0; font:inherit; color:inherit;
+    cursor:pointer; border-radius:3px;
+  }
+  .glass{width:32px; height:44px; overflow:visible}
   .glass .outline{stroke:var(--hairline); stroke-width:1.6; fill:none; stroke-linejoin:round; stroke-linecap:round}
-  .glass .water{fill:var(--agua); opacity:.75; transform:translateY(34px); transition:transform .5s cubic-bezier(.4,1.3,.5,1)}
-  .glass.full .outline{stroke:var(--agua)}
-  .glass.due .outline{stroke:var(--snack); stroke-dasharray:3.5 3}
-  .glass.full .water{transform:translateY(4px)}
-  .glasses[data-done="true"] .glass .water{opacity:1}
+  .glass .water{fill:var(--agua); opacity:.8; transform:translateY(34px); transition:transform .45s cubic-bezier(.4,1.3,.5,1)}
+  .gcell .hour{
+    font-family:var(--display); font-weight:800; font-size:14px; line-height:1;
+    color:var(--ink-soft); font-variant-numeric:tabular-nums;
+  }
+  .gcell .what{
+    font-size:10.5px; line-height:1.2; text-align:center; color:var(--ink-soft);
+    opacity:.7; letter-spacing:.01em;
+  }
+  .gcell:not([disabled]):hover .glass .outline{stroke:var(--agua)}
+  .gcell:not([disabled]):hover .glass .water{transform:translateY(24px)}
+
+  .gcell[aria-pressed="true"] .glass .outline{stroke:var(--agua)}
+  .gcell[aria-pressed="true"] .glass .water{transform:translateY(4px)}
+  .gcell[aria-pressed="true"] .hour{color:var(--agua)}
+  .gcell[aria-pressed="true"] .what{opacity:1; color:var(--agua)}
+  /* le pasó la hora y sigue vacío */
+  .gcell.late .glass .outline{stroke:var(--endgame); stroke-dasharray:3.5 3}
+  .gcell.late .hour{color:var(--endgame)}
+  /* el día que todavía no llegó, o ya pasó */
+  .gcell[disabled]{cursor:default; opacity:.4}
 
   .team{list-style:none; margin:0; padding:0; display:grid; gap:2px}
   .team li{display:grid; grid-template-columns:minmax(72px,auto) 1fr auto; align-items:center; gap:12px; padding:7px 0}
   .team .name{font-size:15px; color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
   .team .bar{height:3px; background:var(--paper-2); position:relative}
   .team .bar i{position:absolute; left:0; top:0; bottom:0; background:var(--agua); opacity:.55; transition:width .4s ease}
-  .team .bar u{
-    position:absolute; top:-4px; bottom:-4px; width:1px; background:var(--ink-soft);
-    opacity:.65; transition:left .4s ease;
-  }
-  .team li.behind .bar i{background:var(--snack)}
-  .team li.behind .n{color:var(--snack)}
   .team .n{font-family:var(--display); font-weight:800; font-size:1.25rem; color:var(--ink-soft); font-variant-numeric:tabular-nums}
   .team li.me .name{color:var(--ink); font-weight:600}
   .team li.me .n{color:var(--agua)}
@@ -180,26 +247,21 @@
   .team li.done .n{color:var(--agua)}
   .team li.done .bar i{opacity:1}
 
-  .marks{list-style:none; margin:0; padding:0; display:grid; gap:0}
-  .marks li{
-    display:grid; grid-template-columns:minmax(58px,auto) 14px 1fr; align-items:baseline; gap:10px;
-    padding:10px 0; border-bottom:1px solid rgba(185,200,204,.55);
+  /* ---- notas de cancha ---- */
+  .notes{list-style:none; margin:0; padding:0; display:grid; gap:0}
+  .notes li{
+    display:grid; grid-template-columns:minmax(84px,auto) 1fr; gap:14px;
+    padding:11px 0; border-bottom:1px solid rgba(185,200,204,.45);
   }
-  .marks li:last-child{border-bottom:0}
-  .marks .who{font-size:15px; color:var(--ink-soft)}
-  .marks .arrow{color:var(--hairline); font-size:13px}
-  .marks .rival{
-    font-family:var(--display); font-weight:700; font-size:1.35rem; line-height:1;
-    text-transform:uppercase; letter-spacing:.01em;
+  .notes li:last-child{border-bottom:0}
+  .notes .k{
+    font-family:var(--display); font-weight:700; font-size:1.1rem; line-height:1.2;
+    text-transform:uppercase; letter-spacing:.02em; color:var(--ink-soft);
   }
-  .marks li.me .who{color:var(--ink); font-weight:600}
-  .marks li.me .rival{color:var(--agua)}
-  .marks li.gk .rival{
-    font-family:var(--body); font-weight:500; font-size:14px;
-    text-transform:none; letter-spacing:0; color:var(--ink-soft); line-height:1.4;
-  }
+  .notes .v{font-size:15px; max-width:44ch}
+  .notes .v small{display:block; color:var(--ink-soft); font-size:13px; margin-top:3px}
 
-  footer{margin-top:44px; font-size:12px; color:var(--ink-soft); max-width:44ch}
+  footer{margin-top:44px; font-size:12px; color:var(--ink-soft); max-width:46ch}
   .err{color:var(--endgame)}
   :focus-visible{outline:2px solid var(--accent); outline-offset:3px}
 
@@ -207,16 +269,16 @@
     :root{--rail:46px}
     .tick b{font-size:14px; right:18px}
     main{padding-right:18px}
+    .plan li{grid-template-columns:50px 10px 1fr; gap:9px}
   }
   @media (prefers-reduced-motion:reduce){
     .wave,.beat{animation:none}
-    .tide{transition:none}
-    .team .bar i{transition:none}
-    .glass .water{transition:none}
+    .tide,body{transition:none}
+    .team .bar i,.glass .water{transition:none}
   }
 </style>
 </head>
-<body data-phase="pre">
+<body data-tag="agua" data-night="false">
 
 <div class="tide" id="tide">
   <svg class="wave" viewBox="0 0 240 14" preserveAspectRatio="none" aria-hidden="true"><path d="M0 8 Q30 0 60 8 T120 8 T180 8 T240 8 V14 H0Z"/></svg>
@@ -230,58 +292,76 @@
 </svg>
 
 <main>
-  <p class="eyebrow" id="fecha">plan de tarde</p>
-  <h1>Countdown para el <em>Endgame</em></h1>
+  <p class="eyebrow" id="fecha">plan de comida y agua</p>
+  <h1>De hoy a <em>mañana 20:00</em></h1>
 
   <div class="clock">
     <strong class="digits" id="digits" role="timer">--:--:--</strong>
-    <p id="clockLabel">faltan para las 19:00</p>
+    <p id="clockLabel">faltan para el partido</p>
   </div>
 
   <div class="card" aria-live="polite">
-    <h2 id="phaseTitle">Fase previa</h2>
-    <p id="phaseText">Cargando la hora…</p>
+    <h2 id="phaseTitle">Cargando</h2>
+    <p id="phaseText">Leyendo la hora de este dispositivo…</p>
     <p class="sub" id="phaseSub"></p>
   </div>
 
   <section class="block">
-    <p class="label">17:00 – 17:30 · snack liviano — elegí uno</p>
-    <ul class="opts" id="opts">
-      <li><button class="opt" aria-pressed="false"><span>01</span> Una banana</button></li>
-      <li><button class="opt" aria-pressed="false"><span>02</span> Un puñado de pasas</button></li>
-      <li><button class="opt" aria-pressed="false"><span>03</span> Una barrita de cereal</button></li>
-      <li><button class="opt" aria-pressed="false"><span>04</span> Un par de tostadas con mermelada o miel</button></li>
-    </ul>
-    <p class="sub">Chico y básicamente hidratos. Nada de grasa, fritura ni fibra de más.</p>
+    <p class="label">las 29 horas, una por una</p>
+    <div id="plan"></div>
   </section>
 
   <section class="block">
-    <p class="label" id="whoLabel">¿quién sos?</p>
+    <p class="label">mañana 17:00 – 17:30 · merienda liviana — elegí una</p>
+    <ul class="opts" id="opts">
+      <li><button class="opt" aria-pressed="false"><span>01</span> Una banana</button></li>
+      <li><button class="opt" aria-pressed="false"><span>02</span> Tostadas con mermelada o dulce de leche</button></li>
+      <li><button class="opt" aria-pressed="false"><span>03</span> Galletitas de arroz con miel</button></li>
+      <li><button class="opt" aria-pressed="false"><span>04</span> Una barrita de cereal</button></li>
+    </ul>
+    <p class="sub">Chica y básicamente hidratos. Nada de grasa, fritura ni fibra de más: son las que te caen mal corriendo.</p>
+  </section>
+
+  <section class="block">
+    <p class="label">¿quién sos?</p>
     <div class="chips" id="chips"></div>
-    <div class="glasses" id="glasses" data-done="false" aria-hidden="true"></div>
-    <div class="counter">
-      <span class="tally"><span id="tally">0</span><span class="of" id="ofTxt">/8</span><small>vasos</small></span>
-      <button id="addGlass" disabled>Tomé un vaso</button>
-      <button class="ghost" id="resetGlass" disabled>Reiniciar</button>
-    </div>
-    <p class="sub" id="waterHint">Elegí tu nombre para empezar a contar.</p>
-    <p class="sub" id="pace"></p>
+    <p class="label" id="railLabel">tocá el vaso que ya tomaste</p>
+    <div class="rail" id="rail"></div>
+    <p class="sub" id="waterHint">Elegí tu nombre para empezar a marcar.</p>
   </section>
 
   <section class="block">
     <p class="label">el equipo hoy</p>
     <ul class="team" id="team"></ul>
     <p class="sub" id="syncMsg">Conectando…</p>
-    <p class="sub" id="paceLegend"></p>
   </section>
 
   <section class="block">
-    <p class="label">plan de juego · marca individual</p>
-    <ul class="marks" id="marks"></ul>
-    <p class="sub">Cada uno con el suyo todo el partido. Si hay cambio, la marca se pasa, no se abandona.</p>
+    <p class="label">en la cancha</p>
+    <ul class="notes">
+      <li>
+        <span class="k">Clima</span>
+        <span class="v">Unos 12 °C a la hora del partido y poca chance de lluvia. En frío la sed engaña: vas a transpirar igual y no te vas a dar cuenta.
+        <small>Pronóstico consultado el domingo. Conviene mirarlo de nuevo mañana a la tarde.</small></span>
+      </li>
+      <li>
+        <span class="k">Durante</span>
+        <span class="v">Con una hora de partido y este frío, agua sola alcanza. Tomá algo en cada pausa aunque no tengas ganas.
+        <small>Bebida deportiva solo si se estira mucho o si transpirás muchísimo.</small></span>
+      </li>
+      <li>
+        <span class="k">Después</span>
+        <span class="v">Dentro de la hora siguiente: hidratos y proteína. Un sándwich, milanesa con arroz, lo que haya. Y seguir tomando agua.
+        <small>Si terminás sin hambre, un yogur con fruta o una leche chocolatada cumple.</small></span>
+      </li>
+      <li>
+        <span class="k">Regla</span>
+        <span class="v">Nada nuevo mañana. Geles, isotónicas, cafeína o cualquier suplemento se prueban en un entrenamiento, nunca el día del partido.</span>
+      </li>
+    </ul>
   </section>
 
-  <footer>La cuenta regresiva usa la hora de este dispositivo. Los vasos se guardan en el servidor, se comparten con el equipo y arrancan de cero cada día.</footer>
+  <footer>Los horarios son orientativos: son promedios de recomendaciones generales de nutrición deportiva, no una indicación individual. La cuenta regresiva usa la hora de este dispositivo. El total de vasos se comparte con el equipo y arranca de cero a la medianoche; cuál vaso marcaste queda guardado solo en este teléfono.</footer>
 </main>
 
 <script>
@@ -289,51 +369,177 @@
   var DIA = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
   var MES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 
-  var digits = document.getElementById('digits');
-  var clockLabel = document.getElementById('clockLabel');
-  var phaseTitle = document.getElementById('phaseTitle');
-  var phaseText = document.getElementById('phaseText');
-  var phaseSub = document.getElementById('phaseSub');
-  var tide = document.getElementById('tide');
+  /* ============================================================
+     Para el próximo partido cambiá SOLO esta línea.
+     (el mes va de 0 a 11: 7 = agosto)
+     ============================================================ */
+  var MATCH = new Date(2026, 7, 4, 20, 0, 0);
+
+  function pad(n){ return (n<10?'0':'') + n; }
+  /** off = 0 el día del partido, -1 la víspera */
+  function day(off, h, m){
+    var d = new Date(MATCH.getTime());
+    d.setDate(d.getDate() + off);
+    d.setHours(h, m||0, 0, 0);
+    return d;
+  }
+
+  /* ---------- el plan: única fuente de verdad ---------- */
+  var PLAN = [
+    { off:-1, h:15, m:0, tag:'agua', title:'Arranca el plan',
+      text:'Un vaso de agua ahora y sorbos regulares toda la tarde. La comida sigue normal.' },
+    { off:-1, h:17, m:30, tag:'comida', title:'Merienda',
+      text:'La de hoy es una merienda común: si tenés hambre, algo con hidratos (pan, fruta, galletitas) y mate o té. Todavía no hace falta cuidar nada, la que importa es la de mañana.' },
+    { off:-1, h:21, m:0, tag:'comida', title:'Cena',
+      text:'La comida que más carga energía: hidratos de base (pastas, arroz, papa, pan) más una proteína. Poca fritura y poco alcohol.' },
+    { off:-1, h:23, m:30, tag:'noche', title:'A dormir',
+      text:'Dormir bien pesa tanto como cualquier detalle de comida. Un vaso de agua y a la cama.' },
+    { off:0, h:8, m:0, tag:'comida', title:'Desayuno',
+      text:'Normal, con hidratos: pan, avena, fruta. Y volvé a tomar agua desde temprano.' },
+    { off:0, h:13, m:0, tag:'comida', title:'Almuerzo',
+      text:'La comida grande del día y la última pesada. Hidratos de base, proteína moderada, poca grasa y poca fibra. Nada de legumbres.' },
+    { off:0, h:14, m:0, tag:'agua', title:'Se cierra la cocina',
+      text:'De acá a las 17 no comés nada más. Solo agua, en sorbos.' },
+    { off:0, h:17, m:0, tag:'comida', title:'Merienda liviana',
+      text:'Algo chico y de digestión rápida. La ventana cierra 17:30.' },
+    { off:0, h:17, m:30, tag:'agua', title:'Solo agua',
+      text:'Terminó la comida. De acá al partido, sorbos chicos nada más.' },
+    { off:0, h:19, m:30, tag:'agua', title:'Último vaso',
+      text:'Entre 200 y 300 ml y basta: más que eso te hace parar a hacer pis. Entrada en calor.' },
+    { off:0, h:20, m:0, tag:'partido', title:'Partido',
+      text:'Fútbol 5. Agua en cada pausa, aunque el frío te saque la sed.' },
+    { off:0, h:21, m:15, tag:'partido', title:'Recuperación',
+      text:'Dentro de la hora: hidratos y proteína, y seguir tomando agua.' }
+  ];
+  PLAN.forEach(function(p){ p.t = day(p.off, p.h, p.m); });
+
+  var START = PLAN[0].t;
+  var END   = PLAN[PLAN.length-1].t;
+
+  /* ---------- la regla: la noche va plegada ----------
+     Cada tramo se lleva un porcentaje del riel. La noche (23:30 a 08:00)
+     son 8 horas y media metidas en un 10%: es tiempo que pasa sin que
+     haya nada que hacer. */
+  var ANCHORS = [
+    { t: day(-1,15,0),  p:0   },
+    { t: day(-1,21,0),  p:26  },
+    { t: day(-1,23,30), p:34  },
+    { t: day(0,8,0),    p:44  },
+    { t: day(0,13,0),   p:60  },
+    { t: day(0,17,0),   p:80  },
+    { t: day(0,20,0),   p:100 }
+  ];
+
+  function pos(date){
+    var x = date.getTime();
+    if(x <= ANCHORS[0].t) return 0;
+    for(var i=1;i<ANCHORS.length;i++){
+      var a = ANCHORS[i-1], b = ANCHORS[i];
+      if(x <= b.t){
+        return a.p + (x - a.t) / (b.t - a.t) * (b.p - a.p);
+      }
+    }
+    return 100;
+  }
+
   var gauge = document.getElementById('gauge');
-  var tallyEl = document.getElementById('tally');
+
+  var fold = document.createElement('div');
+  fold.className = 'fold';
+  fold.style.bottom = pos(day(-1,23,30)) + '%';
+  fold.style.height = (pos(day(0,8,0)) - pos(day(-1,23,30))) + '%';
+  gauge.appendChild(fold);
+
+  [ {t:day(-1,15,0), txt:'15'}, {t:day(-1,21,0), txt:'21'},
+    {t:day(0,8,0),   txt:'08'}, {t:day(0,13,0),  txt:'13'},
+    {t:day(0,17,0),  txt:'17'}, {t:day(0,20,0),  txt:'20'} ]
+  .forEach(function(mk){
+    var p = pos(mk.t);
+    var el = document.createElement('div');
+    el.className = p >= 98 ? 'tick top' : 'tick';
+    el.dataset.at = mk.t.getTime();
+    el.style.bottom = p + '%';
+    el.innerHTML = '<i></i><b>' + mk.txt + '</b>';
+    gauge.appendChild(el);
+  });
+
+  /* ---------- encabezado ---------- */
+  function fechaCorta(d){ return DIA[d.getDay()] + ' ' + d.getDate() + ' de ' + MES[d.getMonth()]; }
+  document.getElementById('fecha').textContent =
+    fechaCorta(day(-1,0,0)) + ' → ' + fechaCorta(MATCH) + ' 20:00 · comida y agua';
+
+  /* ---------- el plan, hora por hora ---------- */
+  var planEl = document.getElementById('plan');
+  var planRows = [];
+
+  (function buildPlan(){
+    var groups = [
+      { off:-1, label:'hoy · ' + fechaCorta(day(-1,0,0)) },
+      { off:0,  label:'mañana · ' + fechaCorta(MATCH) }
+    ];
+    groups.forEach(function(g){
+      var h = document.createElement('p');
+      h.className = 'daylabel';
+      h.textContent = g.label;
+      planEl.appendChild(h);
+
+      var ol = document.createElement('ul');
+      ol.className = 'plan';
+      PLAN.forEach(function(p, i){
+        if(p.off !== g.off) return;
+        var li = document.createElement('li');
+        li.innerHTML = '<span class="when"></span><span class="dot"></span>' +
+                       '<span class="what"><b></b><em></em></span>';
+        li.querySelector('.when').textContent = pad(p.h) + ':' + pad(p.m);
+        li.querySelector('.what b').textContent = p.title;
+        li.querySelector('.what em').textContent = p.text;
+        ol.appendChild(li);
+        planRows[i] = li;
+      });
+      planEl.appendChild(ol);
+    });
+  })();
+
+  /* ---------- estado compartido (misma API que antes) ---------- */
+
+  /* Cada vaso es un momento del día, no una unidad suelta. La víspera la fila
+     arranca a las 15:00, así que cubre de ahí a la cama; el día del partido
+     cubre desde el desayuno. Un vaso son unos 250 ml. Entre las 18:00 y las
+     19:30 no hay ninguno a propósito: es la franja en la que tomar de más te
+     hace parar a hacer pis. */
+  var SCHED = {
+    eve: [
+      [15,0,'arranque'], [16,30,'media tarde'], [18,0,'merienda'],
+      [19,30,'previa cena'], [21,0,'cena'], [22,30,'antes de dormir']
+    ],
+    match: [
+      [8,0,'desayuno'], [10,0,'media mañana'], [12,0,'mediodía'], [13,0,'almuerzo'],
+      [15,0,'media tarde'], [16,30,'antes del snack'], [18,0,'última carga'], [19,30,'el corto']
+    ]
+  };
+
+  var SERVER_GOAL = 8;   // tope que impone el worker (var GOAL en wrangler.jsonc)
+  var sched = [];        // los vasos de hoy: [{t, name}]
+  var TARGET = 0;        // cuántos van hoy
+  var schedDay = '';
+  var slots = [];        // cuáles están marcados hoy
+
+  var me = null;
+  var members = [];
+  var lastLocalChange = 0;
+  var pushTimer = null;
+  var token = null;
+  var offline = false;
+
+  var ROSTER_FALLBACK = ['Joaco','Jere','Maxi','Yago','Nacho'];
+
   var waterHint = document.getElementById('waterHint');
   var chipsEl = document.getElementById('chips');
   var teamEl = document.getElementById('team');
   var syncMsg = document.getElementById('syncMsg');
   var optsEl = document.getElementById('opts');
-  var glassesEl = document.getElementById('glasses');
-  var ofTxt = document.getElementById('ofTxt');
-  var addBtn = document.getElementById('addGlass');
-  var resetBtn = document.getElementById('resetGlass');
-
-  function pad(n){ return (n<10?'0':'') + n; }
-  function at(h, m){ var d = new Date(); d.setHours(h, m||0, 0, 0); return d; }
-
-  var now0 = new Date();
-  document.getElementById('fecha').textContent =
-    DIA[now0.getDay()] + ' ' + now0.getDate() + ' de ' + MES[now0.getMonth()] + ' · plan de tarde';
-
-  /* ---------- regla de la tarde: 13:00 abajo, 19:00 arriba ---------- */
-  var RAIL_START = 13, RAIL_END = 19;
-  function pct(h, m){ return ((h + (m||0)/60) - RAIL_START) / (RAIL_END - RAIL_START) * 100; }
-  [{h:14,m:0,t:'14',k:'agua'},{h:17,m:0,t:'17',k:'snack'},{h:17,m:30,t:'17:30',k:'final'},{h:19,m:0,t:'19',k:'endgame'}]
-    .forEach(function(mk){
-      var el = document.createElement('div');
-      el.className = 'tick';
-      el.dataset.key = mk.k;
-      el.style.bottom = pct(mk.h, mk.m) + '%';
-      el.innerHTML = '<i></i><b>' + mk.t + '</b>';
-      gauge.appendChild(el);
-    });
-
-  /* ---------- estado compartido ---------- */
-  var GOAL = 8;             // meta de vasos por persona (la manda el servidor)
-  var me = null;            // nombre elegido en este dispositivo
-  var members = [];         // [{name, glasses, last, snack}]
-  var lastLocalChange = 0;  // para no pisar lo propio con una lectura vieja
-  var pushTimer = null;
-  var token = null;
+  var railEl = document.getElementById('rail');
+  var railLabel = document.getElementById('railLabel');
 
   function local(k, v){
     try {
@@ -341,13 +547,69 @@
       window.localStorage.setItem(k, v);
     } catch(e){ return null; }
   }
-  me = local('endgame:me');
+  me = local('endgame:me') || null;
   token = local('endgame:token');
 
   function mine(){
     for(var i=0;i<members.length;i++) if(members[i].name === me) return members[i];
     return null;
   }
+
+  /** Los vasos de un día: off = -1 la víspera, 0 el día del partido. */
+  function slotsOf(off){
+    return (off === 0 ? SCHED.match : SCHED.eve)
+      .slice(0, SERVER_GOAL)   // el worker no guarda más vasos que su GOAL
+      .map(function(s){ return { t: day(off, s[0], s[1]), name: s[2] }; });
+  }
+
+  function isMatchDay(){ return new Date() >= day(0,0,0); }
+
+  function buildSched(){
+    sched = slotsOf(isMatchDay() ? 0 : -1);
+    TARGET = sched.length;
+    schedDay = new Date().toDateString();
+    loadSlots();
+  }
+
+  /** Cuántos deberían estar tomados a esta hora. */
+  function expected(){
+    var now = Date.now(), c = 0;
+    for(var i=0;i<sched.length;i++) if(now >= sched[i].t) c++;
+    return c;
+  }
+
+  /* Cuáles están marcados vive en este dispositivo: el worker guarda un número,
+     no un detalle por horario. El número manda, así que si otro dispositivo
+     marcó más o menos, acá se completan o se sueltan los vasos que hagan falta. */
+  function slotsKey(){
+    var d = new Date();
+    return 'endgame:slots:' + d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()) +
+           ':' + (me || '-');
+  }
+  function loadSlots(){
+    var raw = local(slotsKey()) || '';
+    slots = sched.map(function(_, i){ return raw.charAt(i) === '1'; });
+  }
+  function saveSlots(){
+    local(slotsKey(), slots.map(function(b){ return b ? '1' : '0'; }).join(''));
+  }
+  function countSlots(){
+    var c = 0;
+    for(var i=0;i<slots.length;i++) if(slots[i]) c++;
+    return c;
+  }
+  function syncSlots(total){
+    var have = countSlots(), i;
+    if(have === total) return;
+    if(have < total){
+      for(i=0; i<slots.length && have<total; i++) if(!slots[i]){ slots[i] = true; have++; }
+    } else {
+      for(i=slots.length-1; i>=0 && have>total; i--) if(slots[i]){ slots[i] = false; have--; }
+    }
+    saveSlots();
+  }
+
+  buildSched();
 
   function headers(){
     var h = { 'content-type':'application/json' };
@@ -362,33 +624,60 @@
 
   function apply(data, keepMine){
     if(!data || !data.members) return;
-    if(data.goal > 0){ GOAL = data.goal; ofTxt.textContent = '/' + GOAL; }
+    if(data.goal > 0 && data.goal !== SERVER_GOAL){ SERVER_GOAL = data.goal; buildSched(); }
     var previous = keepMine ? mine() : null;
     members = data.members;
     if(previous){
       var row = mine();
       if(row){ row.glasses = previous.glasses; row.last = previous.last; row.snack = previous.snack; }
     }
-    renderChips();
-    renderTeam();
-    renderMine();
+    var m = mine();
+    if(m) syncSlots(m.glasses);   // el número del servidor manda sobre el detalle local
+    renderChips(); renderTeam(); renderMine();
+  }
+
+  /* Sin servidor la página sigue sirviendo: se guarda en este dispositivo
+     y también arranca de cero cada día. */
+  function localKey(){
+    var d = new Date();
+    return 'endgame:local:' + d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
+  }
+  function goOffline(){
+    offline = true;
+    var saved = null;
+    try { saved = JSON.parse(local(localKey()) || 'null'); } catch(e){ saved = null; }
+    members = ROSTER_FALLBACK.map(function(n){
+      var s = saved && saved[n];
+      return { name:n, glasses:(s && s.glasses) || 0, last:(s && s.last) || null,
+               snack: s && typeof s.snack === 'number' ? s.snack : null };
+    });
+    renderChips(); renderTeam(); renderMine();
+    say('Sin servidor: los vasos se guardan solo en este teléfono y no los ve el resto.', true);
+  }
+  function saveLocal(){
+    var obj = {};
+    members.forEach(function(m){ obj[m.name] = { glasses:m.glasses, last:m.last, snack:m.snack }; });
+    local(localKey(), JSON.stringify(obj));
   }
 
   function pull(){
+    if(typeof fetch !== 'function'){ if(!offline) goOffline(); return; }
     fetch('/api/state', { cache:'no-store' })
       .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
       .then(function(data){
+        offline = false;
         apply(data, Date.now() - lastLocalChange < 90000);
         say('Al día. Se actualiza solo cada 30 segundos.');
       })
       .catch(function(){
-        say('Sin conexión con el servidor. Lo que anotes ahora puede no guardarse.', true);
+        if(!offline) goOffline();
       });
   }
 
   function push(){
     var row = mine();
     if(!row) return;
+    if(offline){ saveLocal(); return; }
     clearTimeout(pushTimer);
     pushTimer = setTimeout(function(){
       fetch('/api/state', {
@@ -422,6 +711,9 @@
       b.addEventListener('click', function(){
         me = (me === m.name) ? null : m.name;
         local('endgame:me', me || '');
+        loadSlots();
+        var row = mine();
+        if(row) syncSlots(row.glasses);
         renderChips(); renderTeam(); renderMine();
       });
       chipsEl.appendChild(b);
@@ -429,93 +721,115 @@
   }
 
   function renderTeam(){
-    var debe = expectedNow();
     teamEl.innerHTML = '';
     members.forEach(function(m){
       var li = document.createElement('li');
-      li.className = (m.name === me ? 'me ' : '') +
-                     (m.glasses >= GOAL ? 'done ' : '') +
-                     (m.glasses < debe ? 'behind' : '');
-      li.innerHTML = '<span class="name"></span><span class="bar"><i></i><u></u></span><span class="n"></span>';
+      li.className = (m.name === me ? 'me ' : '') + (m.glasses >= TARGET ? 'done' : '');
+      li.innerHTML = '<span class="name"></span><span class="bar"><i></i></span><span class="n"></span>';
       li.querySelector('.name').textContent = m.name;
-      li.querySelector('.bar i').style.width = Math.min(100, m.glasses / GOAL * 100) + '%';
-      li.querySelector('.bar u').style.left = Math.min(100, debe / GOAL * 100) + '%';
-      li.querySelector('.n').textContent = m.glasses + '/' + GOAL;
+      li.querySelector('.bar i').style.width = Math.min(100, m.glasses / TARGET * 100) + '%';
+      li.querySelector('.n').textContent = m.glasses + '/' + TARGET;
       teamEl.appendChild(li);
     });
-    renderPaceLegend();
   }
 
-  function renderGlasses(n){
-    if(glassesEl.childElementCount !== GOAL){
-      glassesEl.innerHTML = '';
-      for(var i = 0; i < GOAL; i++){
-        glassesEl.insertAdjacentHTML('beforeend',
-          '<svg class="glass" viewBox="0 0 24 36">' +
-            '<g clip-path="url(#glassClip)"><rect class="water" x="0" y="0" width="24" height="34"/></g>' +
-            '<path class="outline" d="M2 2 L6 32 H18 L22 2"/>' +
-          '</svg>');
-      }
+  /* ---- la fila de vasos ---- */
+  function cellHTML(slot, i, active){
+    var hora = pad(slot.t.getHours()) + ':' + pad(slot.t.getMinutes());
+    return '<button type="button" class="gcell" data-i="' + i + '"' +
+      (active ? ' aria-pressed="false"' : ' disabled') +
+      ' aria-label="Vaso de las ' + hora + ', ' + slot.name + '">' +
+      '<svg class="glass" viewBox="0 0 24 36" aria-hidden="true">' +
+        '<g clip-path="url(#glassClip)"><rect class="water" x="0" y="0" width="24" height="34"/></g>' +
+        '<path class="outline" d="M2 2 L6 32 H18 L22 2"/>' +
+      '</svg>' +
+      '<span class="hour">' + hora + '</span>' +
+      '<span class="what">' + slot.name + '</span>' +
+    '</button>';
+  }
+
+  /** Dibuja los dos días seguidos: el de hoy se puede tocar, el otro no. */
+  function renderRail(exp){
+    var matchDay = isMatchDay();
+    var groups = [
+      { off:-1, label:'hoy',     slots: matchDay ? slotsOf(-1) : sched, active: !matchDay },
+      { off:0,  label:'mañana',  slots: matchDay ? sched : slotsOf(0),  active: matchDay }
+    ];
+    if(matchDay) groups[0].label = 'ayer';
+    if(matchDay) groups[1].label = 'hoy · partido';
+
+    var sig = groups.map(function(g){
+      return g.label + ':' + g.slots.map(function(s){ return s.t.getTime(); }).join('-');
+    }).join('|');
+
+    if(railEl.dataset.sig !== sig){
+      railEl.dataset.sig = sig;
+      railEl.innerHTML = groups.map(function(g){
+        return '<span class="daymark">' + g.label + '</span>' +
+               g.slots.map(function(s, i){ return cellHTML(s, i, g.active); }).join('');
+      }).join('');
     }
-    var debe = expectedNow();
-    Array.prototype.forEach.call(glassesEl.children, function(g, i){
-      g.classList.toggle('full', i < n);
-      g.classList.toggle('due', i >= n && i < debe);
+
+    var cells = railEl.querySelectorAll('.gcell');
+    var offset = groups[0].active ? 0 : groups[0].slots.length;
+    Array.prototype.forEach.call(cells, function(cell, k){
+      var i = k - offset;
+      if(i < 0 || i >= slots.length) return;   // el día que no se toca
+      cell.setAttribute('aria-pressed', slots[i] ? 'true' : 'false');
+      cell.classList.toggle('late', !slots[i] && i < exp);
     });
-    glassesEl.dataset.done = n >= GOAL ? 'true' : 'false';
+
+    var total = groups[0].slots.length + groups[1].slots.length;
+    railLabel.textContent = 'tocá el vaso que ya tomaste · ' + total + ' entre los dos días, ' +
+      'unos ' + (Math.round(total * 0.25 * 10) / 10) + ' litros';
   }
 
   function renderMine(){
     var row = mine();
-    var n = row ? row.glasses : 0;
-    addBtn.disabled = !row || n >= GOAL;
-    resetBtn.disabled = !row;
-    tallyEl.textContent = n;
-    ofTxt.textContent = '/' + GOAL;
-    renderGlasses(n);
+    var exp = expected();
+    var n = row ? countSlots() : 0;
+    renderRail(exp);
 
-    var ultimo = '';
-    if(row && row.last){
-      var t = new Date(row.last);
-      ultimo = ' Último a las ' + pad(t.getHours()) + ':' + pad(t.getMinutes()) + '.';
+    var proximo = '';
+    for(var i=0;i<sched.length;i++){
+      if(!slots[i] && sched[i].t > Date.now()){
+        proximo = ' El próximo es el de las ' + pad(sched[i].t.getHours()) + ':' +
+                  pad(sched[i].t.getMinutes()) + ', ' + sched[i].name + '.';
+        break;
+      }
     }
-
-    var debe = expectedNow();
-    var prox = nextGlassAt();
 
     if(!row){
-      waterHint.textContent = 'Elegí tu nombre para empezar a contar.';
-    } else if(n >= GOAL){
-      waterHint.textContent = 'Los ' + GOAL + ' vasos, listos.' + ultimo + ' Si tomás más, mejor, pero el contador se queda acá.';
-    } else if(n < debe){
-      waterHint.textContent = 'Vas ' + n + ' y a esta hora tocan ' + debe + '. Estás ' + (debe - n) + ' atrás.' + ultimo;
-    } else if(debe === 0){
-      waterHint.textContent = 'El ritmo arranca a las 14:00: un vaso cada ' + Math.round(paceStep()/60000) + ' minutos.';
+      waterHint.textContent = 'Elegí tu nombre para empezar a marcar. Cada vaso son unos 250 ml.';
+    } else if(n >= TARGET){
+      waterHint.textContent = 'Los ' + TARGET + ' vasos de hoy, listos. Si tomás más, mejor, ' +
+        'pero la fila se queda acá.';
+    } else if(n >= exp){
+      waterHint.textContent = 'Vas al día: ' + n + ' de ' + TARGET + '.' + proximo;
+    } else if(exp - n === 1){
+      waterHint.textContent = 'Te falta uno: a esta hora deberías ir por ' + exp + '. Tomalo ahora, sin apuro.';
     } else {
-      waterHint.textContent = 'Vas ' + n + ' y a esta hora tocan ' + debe + '. Al día.' + ultimo;
+      waterHint.textContent = 'Vas ' + (exp - n) + ' vasos atrás: a esta hora deberías ir por ' + exp +
+        '. Recuperalos de a poco, no de golpe.';
     }
-
-    document.getElementById('pace').textContent = prox
-      ? 'Próximo vaso a las ' + hhmm(prox) + '. Los ' + GOAL + ' tienen que estar a las ' + pad(PACE_TO[0]) + ':' + pad(PACE_TO[1]) + '.'
-      : 'Ya pasó la hora del último vaso: los ' + GOAL + ' iban hasta las ' + pad(PACE_TO[0]) + ':' + pad(PACE_TO[1]) + '.';
 
     Array.prototype.forEach.call(optsEl.querySelectorAll('.opt'), function(b, i){
       b.setAttribute('aria-pressed', row && row.snack === i ? 'true' : 'false');
     });
-
-    renderMarks();
   }
 
-  addBtn.addEventListener('click', function(){
-    var row = mine(); if(!row || row.glasses >= GOAL) return;
-    row.glasses++; row.last = Date.now();
-    lastLocalChange = Date.now();
-    renderTeam(); renderMine(); push();
-  });
+  railEl.addEventListener('click', function(e){
+    var btn = e.target.closest('.gcell');
+    if(!btn || btn.disabled) return;
+    var row = mine();
+    if(!row){ say('Elegí tu nombre primero para marcar los vasos.', true); return; }
+    var i = Number(btn.dataset.i);
+    if(!(i >= 0 && i < slots.length)) return;
 
-  resetBtn.addEventListener('click', function(){
-    var row = mine(); if(!row) return;
-    row.glasses = 0; row.last = null;
+    slots[i] = !slots[i];
+    saveSlots();
+    row.glasses = countSlots();
+    row.last = slots[i] ? Date.now() : row.last;
     lastLocalChange = Date.now();
     renderTeam(); renderMine(); push();
   });
@@ -524,143 +838,111 @@
     var btn = e.target.closest('.opt');
     if(!btn) return;
     var row = mine();
-    if(!row){ say('Elegí tu nombre primero para guardar el snack.', true); return; }
+    if(!row){ say('Elegí tu nombre primero para guardar la merienda.', true); return; }
     var i = Array.prototype.indexOf.call(this.querySelectorAll('.opt'), btn);
     row.snack = (row.snack === i) ? null : i;
     lastLocalChange = Date.now();
     renderMine(); push();
   });
 
-  /* ---------- ritmo: llegar a la meta a las 18:00 ---------- */
-  var PACE_FROM = [14, 0];   // arranca la hidratación
-  var PACE_TO   = [18, 0];   // a esta hora hay que tener los 8
-
-  function paceStep(){
-    return (at(PACE_TO[0], PACE_TO[1]) - at(PACE_FROM[0], PACE_FROM[1])) / GOAL;
-  }
-
-  /** Cuántos vasos corresponden a una hora dada. */
-  function expectedAt(d){
-    var start = at(PACE_FROM[0], PACE_FROM[1]);
-    if(d < start) return 0;
-    if(d >= at(PACE_TO[0], PACE_TO[1])) return GOAL;
-    return Math.min(GOAL, Math.floor((d - start) / paceStep()) + 1);
-  }
-
-  function expectedNow(){ return expectedAt(new Date()); }
-
-  /** Hora del próximo vaso, o null si ya pasó el último. */
-  function nextGlassAt(){
-    var now = new Date();
-    var start = at(PACE_FROM[0], PACE_FROM[1]);
-    if(now < start) return start;
-    var i = Math.floor((now - start) / paceStep()) + 1;
-    if(i >= GOAL) return null;
-    return new Date(start.getTime() + i * paceStep());
-  }
-
-  function hhmm(d){ return pad(d.getHours()) + ':' + pad(d.getMinutes()); }
-
-  function renderPaceLegend(){
-    var partes = [];
-    for(var h = PACE_FROM[0]; h <= PACE_TO[0]; h++){
-      partes.push(h + ' → ' + expectedAt(at(h, 0)));
-    }
-    document.getElementById('paceLegend').textContent =
-      'La rayita de cada barra es lo que corresponde a esta hora: ' + partes.join(' · ') +
-      '. Uno cada ' + Math.round(paceStep()/60000) + ' minutos.';
-  }
-
-  /* ---------- plan de juego ---------- */
-  var MARCAS = [
-    { who:'Yago',  rival:'Juanchi' },
-    { who:'Maxi',  rival:'Negro' },
-    { who:'Nacho', rival:'Mudo' },
-    { who:'Joaco', rival:'Facu' },
-    { who:'Jere',  rival:'Arranca al arco. Cuando entre, toma la marca del que sale.', gk:true }
-  ];
-  var marksEl = document.getElementById('marks');
-
-  function renderMarks(){
-    marksEl.innerHTML = '';
-    MARCAS.forEach(function(m){
-      var li = document.createElement('li');
-      li.className = (m.who === me ? 'me ' : '') + (m.gk ? 'gk' : '');
-      li.innerHTML = '<span class="who"></span><span class="arrow">' + (m.gk ? '·' : '&#8594;') + '</span><span class="rival"></span>';
-      li.querySelector('.who').textContent = m.who;
-      li.querySelector('.rival').textContent = m.rival;
-      marksEl.appendChild(li);
-    });
-  }
-  renderMarks();
-
   /* ---------- reloj y fases ---------- */
+  var digits = document.getElementById('digits');
+  var clockLabel = document.getElementById('clockLabel');
+  var phaseTitle = document.getElementById('phaseTitle');
+  var phaseText = document.getElementById('phaseText');
+  var phaseSub = document.getElementById('phaseSub');
+  var tide = document.getElementById('tide');
+
+  function nextSip(now){
+    var slot = (Math.floor(now.getMinutes()/20) + 1) * 20;
+    var t = new Date(now.getTime());
+    t.setSeconds(0,0);
+    if(slot >= 60){ t.setHours(t.getHours()+1); t.setMinutes(0); }
+    else { t.setMinutes(slot); }
+    return Math.max(0, Math.round((t - now)/60000));
+  }
+
+  function faltan(ms){
+    var min = Math.ceil(ms/60000);
+    if(min < 60) return min + ' min';
+    var h = Math.floor(min/60), r = min % 60;
+    return h + ' h' + (r ? ' ' + r + ' min' : '');
+  }
+
+  function activeIndex(now){
+    var idx = -1;
+    for(var i=0;i<PLAN.length;i++) if(now >= PLAN[i].t) idx = i;
+    return idx;
+  }
+
+  var lastExpected = -1;
+
   function tick(){
     var now = new Date();
-    var diff = at(19,0) - now;
+    var diff = MATCH - now;
+
+    /* si cruzamos la medianoche con la página abierta, cambian los horarios */
+    if(now.toDateString() !== schedDay){ buildSched(); lastExpected = -1; }
+    var exp = expected();
+    if(exp !== lastExpected){ lastExpected = exp; renderTeam(); renderMine(); }
 
     if(diff > 0){
       var s = Math.floor(diff/1000);
-      digits.innerHTML = pad(Math.floor(s/3600)) + ':' + pad(Math.floor((s%3600)/60)) + ':<span class="s">' + pad(s%60) + '</span>';
-      clockLabel.textContent = 'faltan para las 19:00';
+      digits.innerHTML = pad(Math.floor(s/3600)) + ':' + pad(Math.floor((s%3600)/60)) +
+                         ':<span class="s">' + pad(s%60) + '</span>';
+      clockLabel.textContent = 'faltan para el partido';
     } else {
       digits.innerHTML = '<span class="s">00:00:00</span>';
-      clockLabel.textContent = 'son las 19:00';
+      clockLabel.textContent = 'ya es la hora';
     }
 
-    var p = (now - at(RAIL_START,0)) / (at(RAIL_END,0) - at(RAIL_START,0)) * 100;
-    tide.style.height = Math.max(0, Math.min(100, p)) + '%';
+    /* marea */
+    tide.style.height = Math.max(0, Math.min(100, pos(now))) + '%';
 
-    var phase;
-    if(diff <= 0) phase = 'endgame';
-    else if(now >= at(17,30)) phase = 'final';
-    else if(now >= at(17,0)) phase = 'snack';
-    else if(now >= at(14,0)) phase = 'agua';
-    else phase = 'pre';
-    document.body.dataset.phase = phase;
+    /* fase actual */
+    var idx = activeIndex(now);
+    var cur = idx >= 0 ? PLAN[idx] : null;
+    var next = PLAN[idx+1] || null;
 
-    var order = ['pre','agua','snack','final','endgame'];
-    Array.prototype.forEach.call(gauge.children, function(el){
-      el.classList.toggle('on', order.indexOf(el.dataset.key) <= order.indexOf(phase));
+    document.body.dataset.tag = cur ? cur.tag : 'agua';
+    document.body.dataset.night = (cur && cur.tag === 'noche') ? 'true' : 'false';
+
+    Array.prototype.forEach.call(gauge.querySelectorAll('.tick'), function(el){
+      el.classList.toggle('on', now >= Number(el.dataset.at));
     });
 
-    var prox = nextGlassAt();
-    var sipTxt = prox ? 'a las ' + hhmm(prox) : 'ya está, era hasta las ' + pad(PACE_TO[0]) + ':' + pad(PACE_TO[1]);
+    planRows.forEach(function(li, i){
+      if(!li) return;
+      li.classList.toggle('past', i < idx);
+      li.classList.toggle('now', i === idx);
+    });
 
-    if(phase === 'pre'){
-      phaseTitle.textContent = 'Todavía tranquilo';
-      phaseText.textContent = 'La hidratación arranca a las 14:00.';
-      phaseSub.textContent = 'Faltan ' + Math.ceil((at(14,0) - now)/60000) + ' min para eso. Hasta ahí, comé y tomá normal.';
-    } else if(phase === 'agua'){
-      phaseTitle.innerHTML = '<span class="beat"></span>Tomá agua';
-      phaseText.textContent = 'Un vaso cada ' + Math.round(paceStep()/60000) + ' minutos, para tener los ' + GOAL + ' a las ' + pad(PACE_TO[0]) + ':' + pad(PACE_TO[1]) + '.';
-      phaseSub.textContent = 'Próximo vaso ' + sipTxt + ' · snack liviano a las 17:00.';
-    } else if(phase === 'snack'){
-      phaseTitle.innerHTML = '<span class="beat"></span>Ventana de snack';
-      phaseText.textContent = 'Algo chico y básicamente hidratos: banana, pasas, barrita, o tostadas con mermelada o miel.';
-      phaseSub.textContent = 'La ventana cierra en ' + Math.ceil((at(17,30) - now)/60000) + ' min. Seguí con agua igual.';
-    } else if(phase === 'final'){
-      phaseTitle.innerHTML = '<span class="beat"></span>Solo agua';
-      phaseText.textContent = 'Se cerró la comida. De acá al Endgame, solo agua.';
-      phaseSub.textContent = 'Próximo vaso ' + sipTxt + '.';
-    } else {
-      phaseTitle.textContent = 'Es la hora';
-      phaseText.textContent = 'Endgame.';
+    var sip = nextSip(now);
+    var sipTxt = sip === 0 ? 'ahora' : 'en ' + sip + ' min';
+
+    if(!cur){
+      phaseTitle.textContent = 'Todavía no arranca';
+      phaseText.textContent = 'El plan empieza hoy a las 15:00. Hasta ahí, comé y tomá normal.';
+      phaseSub.textContent = 'Faltan ' + faltan(START - now) + ' para eso.';
+    } else if(now >= END){
+      phaseTitle.textContent = 'Listo';
+      phaseText.textContent = 'Partido jugado. Comé algo con hidratos y proteína, y seguí con agua.';
       phaseSub.textContent = '';
-    }
-  }
+    } else {
+      var beat = (cur.tag === 'noche') ? '' : '<span class="beat"></span>';
+      phaseTitle.innerHTML = beat + cur.title;
+      phaseText.textContent = cur.text;
 
-  var ultimoDebe = -1;
-  function watchPace(){
-    var debe = expectedNow();
-    if(debe !== ultimoDebe){
-      ultimoDebe = debe;
-      if(members.length){ renderTeam(); renderMine(); }
+      var partes = [];
+      if(next) partes.push('Después: ' + next.title.toLowerCase() + ' en ' + faltan(next.t - now) + '.');
+      if(cur.tag === 'agua') partes.push('Próximo sorbo ' + sipTxt + '.');
+      if(cur.tag === 'noche') partes.push('Nada que hacer hasta el desayuno.');
+      phaseSub.textContent = partes.join(' ');
     }
   }
 
   tick();
-  setInterval(function(){ tick(); watchPace(); }, 1000);
+  setInterval(tick, 1000);
 
   pull();
   setInterval(pull, 30000);
