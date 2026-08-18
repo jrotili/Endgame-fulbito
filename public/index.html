@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Fecha 1 Indiana · 2.0 Eta locura</title>
+<title>Fecha 1 Indiana</title>
 <meta name="color-scheme" content="light dark">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -114,15 +114,8 @@
     letter-spacing:-.01em; text-transform:uppercase;
     margin:0 0 26px; max-width:11ch;
   }
-  h1{margin:0 0 10px}
+  h1{margin:0 0 26px}
   h1 em{font-style:normal; color:var(--accent)}
-  .ver{
-    font-family:var(--display); font-weight:700; text-transform:uppercase;
-    font-size:clamp(1.1rem,4.5vw,1.6rem); line-height:1;
-    letter-spacing:.03em; color:var(--accent);
-    margin:0 0 26px; display:flex; align-items:center; gap:10px;
-  }
-  .ver::after{content:""; flex:1; height:1px; background:var(--hairline)}
 
   .clock{margin:0 0 8px}
   .digits{
@@ -303,7 +296,6 @@
 <main>
   <p class="eyebrow" id="fecha">plan de comida y agua</p>
   <h1>Fecha 1 <em>Indiana</em></h1>
-  <p class="ver">2.0 · Eta locura</p>
 
   <div class="clock">
     <strong class="digits" id="digits" role="timer">--:--:--</strong>
@@ -351,8 +343,8 @@
     <ul class="notes">
       <li>
         <span class="k">Camiseta</span>
-        <span class="v">Nos toca la de Argentina. El que no la tenga, cualquier remera de color claro.
-        <small>Si sos el último en salir de casa, revisá que no te la estés olvidando.</small></span>
+        <span class="v">Usamos la del Palmeiras. Lleven la de Argentina por las dudas.
+        <small>Si sos el último en salir de casa, revisá que no te las estés olvidando.</small></span>
       </li>
       <li>
         <span class="k">El hueco</span>
@@ -393,7 +385,7 @@
      Para el próximo partido cambiá SOLO esta línea.
      (el mes va de 0 a 11: 7 = agosto)
      ============================================================ */
-  var MATCH = new Date(2026, 7, 19, 22, 30, 0);
+  var MATCH = new Date(2026, 7, 18, 22, 30, 0);
 
   function pad(n){ return (n<10?'0':'') + n; }
   /** off = 0 el día del partido, -1 la víspera */
