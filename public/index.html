@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>De hoy a mañana 20:00 · 2.0 Eta locura</title>
+<title>Fecha 1 Indiana · 2.0 Eta locura</title>
 <meta name="color-scheme" content="light dark">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -97,6 +97,7 @@
   }
   /* el 20:00 cae en el borde de arriba: el número se cuelga por debajo de la raya */
   .tick.top b{bottom:-22px}
+  .tick.long b{font-size:13px}
   .tick.on b{color:var(--accent)}
   .tick.on i{background:var(--accent); width:22px}
 
@@ -301,7 +302,7 @@
 
 <main>
   <p class="eyebrow" id="fecha">plan de comida y agua</p>
-  <h1>De hoy a <em>mañana 20:00</em></h1>
+  <h1>Fecha 1 <em>Indiana</em></h1>
   <p class="ver">2.0 · Eta locura</p>
 
   <div class="clock">
@@ -321,14 +322,14 @@
   </section>
 
   <section class="block">
-    <p class="label">mañana 17:00 – 17:30 · merienda liviana — elegí una</p>
+    <p class="label">16:30 – 17:00 · merienda — elegí una</p>
     <ul class="opts" id="opts">
-      <li><button class="opt" aria-pressed="false"><span>01</span> Una banana</button></li>
-      <li><button class="opt" aria-pressed="false"><span>02</span> Tostadas con mermelada o dulce de leche</button></li>
-      <li><button class="opt" aria-pressed="false"><span>03</span> Galletitas de arroz con miel</button></li>
+      <li><button class="opt" aria-pressed="false"><span>01</span> Una fruta</button></li>
+      <li><button class="opt" aria-pressed="false"><span>02</span> Tostadas con mermelada</button></li>
+      <li><button class="opt" aria-pressed="false"><span>03</span> Yogur con banana</button></li>
       <li><button class="opt" aria-pressed="false"><span>04</span> Una barrita de cereal</button></li>
     </ul>
-    <p class="sub">Chica y básicamente hidratos. Nada de grasa, fritura ni fibra de más: son las que te caen mal corriendo.</p>
+    <p class="sub">Esta merienda existe para que llegues a las 19:00 con hambre normal y no comas de más. La comida chica y sin grasa es la de las 19:00, no esta.</p>
   </section>
 
   <section class="block">
@@ -354,23 +355,28 @@
         <small>Si sos el último en salir de casa, revisá que no te la estés olvidando.</small></span>
       </li>
       <li>
+        <span class="k">El hueco</span>
+        <span class="v">De 13:00 a 19:00 hay seis horas sin nada. Ese es el problema del horario, no el almuerzo: si las pasás en blanco llegás con hambre y comés de más a las 19, justo cuando no conviene.
+        <small>La merienda de 16:30 está para eso. No es opcional.</small></span>
+      </li>
+      <li>
         <span class="k">Clima</span>
-        <span class="v">Unos 12 °C a la hora del partido y poca chance de lluvia. En frío la sed engaña: vas a transpirar igual y no te vas a dar cuenta.
-        <small>Pronóstico consultado el domingo. Conviene mirarlo de nuevo mañana a la tarde.</small></span>
+        <span class="v">A las 22:30 va a estar bastante más frío que de día. En frío la sed engaña: transpirás igual y no te dan ganas de tomar.
+        <small>No tengo el pronóstico de esa fecha: miralo el mismo día a la tarde.</small></span>
       </li>
       <li>
         <span class="k">Durante</span>
-        <span class="v">Con una hora de partido y este frío, agua sola alcanza. Tomá algo en cada pausa aunque no tengas ganas.
+        <span class="v">Con una hora de partido, agua sola alcanza. Tomá algo en cada pausa aunque no tengas ganas.
         <small>Bebida deportiva solo si se estira mucho o si transpirás muchísimo.</small></span>
       </li>
       <li>
         <span class="k">Después</span>
-        <span class="v">Dentro de la hora siguiente: hidratos y proteína. Un sándwich, milanesa con arroz, lo que haya. Y seguir tomando agua.
-        <small>Si terminás sin hambre, un yogur con fruta o una leche chocolatada cumple.</small></span>
+        <span class="v">Vas a terminar cerca de medianoche, con poca hambre y ganas de dormir. Aun así, algo con hidratos y proteína dentro de la hora.
+        <small>Si es demasiado tarde para cocinar, un yogur con fruta o una leche chocolatada cumple.</small></span>
       </li>
       <li>
         <span class="k">Regla</span>
-        <span class="v">Nada nuevo mañana. Geles, isotónicas, cafeína o cualquier suplemento se prueban en un entrenamiento, nunca el día del partido.</span>
+        <span class="v">Nada nuevo ese día. Geles, isotónicas, cafeína o cualquier suplemento se prueban en un entrenamiento, nunca el día del partido.</span>
       </li>
     </ul>
   </section>
@@ -387,7 +393,7 @@
      Para el próximo partido cambiá SOLO esta línea.
      (el mes va de 0 a 11: 7 = agosto)
      ============================================================ */
-  var MATCH = new Date(2026, 7, 4, 20, 0, 0);
+  var MATCH = new Date(2026, 7, 19, 22, 30, 0);
 
   function pad(n){ return (n<10?'0':'') + n; }
   /** off = 0 el día del partido, -1 la víspera */
@@ -400,48 +406,38 @@
 
   /* ---------- el plan: única fuente de verdad ---------- */
   var PLAN = [
-    { off:-1, h:15, m:0, tag:'agua', title:'Arranca el plan',
-      text:'Un vaso de agua ahora y sorbos regulares toda la tarde. La comida sigue normal.' },
-    { off:-1, h:17, m:30, tag:'comida', title:'Merienda',
-      text:'La de hoy es una merienda común: si tenés hambre, algo con hidratos (pan, fruta, galletitas) y mate o té. Todavía no hace falta cuidar nada, la que importa es la de mañana.' },
-    { off:-1, h:21, m:0, tag:'comida', title:'Cena',
-      text:'La comida que más carga energía: hidratos de base (pastas, arroz, papa, pan) más una proteína. Poca fritura y poco alcohol.' },
-    { off:-1, h:23, m:30, tag:'noche', title:'A dormir',
-      text:'Dormir bien pesa tanto como cualquier detalle de comida. Un vaso de agua y a la cama.' },
-    { off:0, h:8, m:0, tag:'comida', title:'Desayuno',
-      text:'Normal, con hidratos: pan, avena, fruta. Y volvé a tomar agua desde temprano.' },
-    { off:0, h:13, m:0, tag:'comida', title:'Almuerzo',
-      text:'La comida grande del día y la última pesada. Hidratos de base, proteína moderada, poca grasa y poca fibra. Nada de legumbres.' },
-    { off:0, h:14, m:0, tag:'agua', title:'Se cierra la cocina',
-      text:'De acá a las 17 no comés nada más. Solo agua, en sorbos.' },
-    { off:0, h:17, m:0, tag:'comida', title:'Merienda liviana',
-      text:'Algo chico y de digestión rápida. La ventana cierra 17:30.' },
-    { off:0, h:17, m:30, tag:'agua', title:'Solo agua',
-      text:'Terminó la comida. De acá al partido, sorbos chicos nada más.' },
-    { off:0, h:19, m:30, tag:'agua', title:'Último vaso',
+    { off:0, h:10, m:0, tag:'comida', title:'Desayuno normal',
+      text:'Lo que comas habitualmente: café con leche y tostadas, avena, lo que sea. Tan lejos del partido no hace falta nada especial.' },
+    { off:0, h:13, m:0, tag:'comida', title:'Almuerzo completo',
+      text:'Comé tranquilo y variado: hidratos, proteína, verduras. Estás a más de 9 horas del partido, así que no hay riesgo. Es la comida más grande del día.' },
+    { off:0, h:16, m:30, tag:'comida', title:'Merienda',
+      text:'Fruta, tostadas con mermelada, yogur con banana. Sin esto llegás con mucha hambre a la noche y terminás comiendo de más justo antes de jugar.' },
+    { off:0, h:19, m:0, tag:'comida', title:'Esta es la comida importante',
+      text:'A 3 o 3 horas y media del partido. Base de hidratos, proteína magra moderada, poca grasa y poca fibra: fideos con salsa de tomate y pollo, arroz con carne magra, milanesa al horno con puré. Porción normal, no gigante.' },
+    { off:0, h:19, m:45, tag:'agua', title:'Se cierra la cocina',
+      text:'De acá al partido no comés nada más. Quedan casi 3 horas de digestión, que es justo lo que buscamos.' },
+    { off:0, h:22, m:0, tag:'agua', title:'Último vaso',
       text:'Entre 200 y 300 ml y basta: más que eso te hace parar a hacer pis. Entrada en calor.' },
-    { off:0, h:20, m:0, tag:'partido', title:'Partido',
-      text:'Fútbol 5. Agua en cada pausa, aunque el frío te saque la sed.' },
-    { off:0, h:21, m:15, tag:'partido', title:'Recuperación',
-      text:'Dentro de la hora: hidratos y proteína, y seguir tomando agua.' }
+    { off:0, h:22, m:30, tag:'partido', title:'Partido',
+      text:'Fútbol 5. Agua en cada pausa, aunque a esta hora el frío te saque la sed.' },
+    { off:0, h:23, m:45, tag:'partido', title:'Recuperación',
+      text:'Dentro de la hora: hidratos y proteína. Si es muy tarde para una comida, un yogur con fruta o una leche chocolatada cumple.' }
   ];
   PLAN.forEach(function(p){ p.t = day(p.off, p.h, p.m); });
 
   var START = PLAN[0].t;
   var END   = PLAN[PLAN.length-1].t;
 
-  /* ---------- la regla: la noche va plegada ----------
-     Cada tramo se lleva un porcentaje del riel. La noche (23:30 a 08:00)
-     son 8 horas y media metidas en un 10%: es tiempo que pasa sin que
-     haya nada que hacer. */
+  /* ---------- la regla: 12 horas y media ----------
+     Ahora es todo un mismo día, así que no hay noche que plegar. El único
+     tramo que se estira es el hueco de la tarde: de 13:00 a 19:00 no pasa
+     casi nada y conviene que se vea largo, porque ese es el problema. */
   var ANCHORS = [
-    { t: day(-1,15,0),  p:0   },
-    { t: day(-1,21,0),  p:26  },
-    { t: day(-1,23,30), p:34  },
-    { t: day(0,8,0),    p:44  },
-    { t: day(0,13,0),   p:60  },
-    { t: day(0,17,0),   p:80  },
-    { t: day(0,20,0),   p:100 }
+    { t: day(0,10,0),  p:0   },
+    { t: day(0,13,0),  p:20  },
+    { t: day(0,16,30), p:48  },
+    { t: day(0,19,0),  p:72  },
+    { t: day(0,22,30), p:100 }
   ];
 
   function pos(date){
@@ -458,19 +454,20 @@
 
   var gauge = document.getElementById('gauge');
 
+  /* el hueco: de la merienda a la comida importante, marcado como zona a cubrir */
   var fold = document.createElement('div');
   fold.className = 'fold';
-  fold.style.bottom = pos(day(-1,23,30)) + '%';
-  fold.style.height = (pos(day(0,8,0)) - pos(day(-1,23,30))) + '%';
+  fold.style.bottom = pos(day(0,13,0)) + '%';
+  fold.style.height = (pos(day(0,19,0)) - pos(day(0,13,0))) + '%';
   gauge.appendChild(fold);
 
-  [ {t:day(-1,15,0), txt:'15'}, {t:day(-1,21,0), txt:'21'},
-    {t:day(0,8,0),   txt:'08'}, {t:day(0,13,0),  txt:'13'},
-    {t:day(0,17,0),  txt:'17'}, {t:day(0,20,0),  txt:'20'} ]
+  [ {t:day(0,10,0),  txt:'10'},    {t:day(0,13,0),  txt:'13'},
+    {t:day(0,16,30), txt:'16:30'}, {t:day(0,19,0),  txt:'19'},
+    {t:day(0,22,30), txt:'22:30'} ]
   .forEach(function(mk){
     var p = pos(mk.t);
     var el = document.createElement('div');
-    el.className = p >= 98 ? 'tick top' : 'tick';
+    el.className = (p >= 98 ? 'tick top' : 'tick') + (mk.txt.length > 2 ? ' long' : '');
     el.dataset.at = mk.t.getTime();
     el.style.bottom = p + '%';
     el.innerHTML = '<i></i><b>' + mk.txt + '</b>';
@@ -480,55 +477,44 @@
   /* ---------- encabezado ---------- */
   function fechaCorta(d){ return DIA[d.getDay()] + ' ' + d.getDate() + ' de ' + MES[d.getMonth()]; }
   document.getElementById('fecha').textContent =
-    fechaCorta(day(-1,0,0)) + ' → ' + fechaCorta(MATCH) + ' 20:00 · comida y agua';
+    fechaCorta(MATCH) + ' · 10:00 → 22:30 · comida y agua';
 
   /* ---------- el plan, hora por hora ---------- */
   var planEl = document.getElementById('plan');
   var planRows = [];
 
   (function buildPlan(){
-    var groups = [
-      { off:-1, label:'hoy · ' + fechaCorta(day(-1,0,0)) },
-      { off:0,  label:'mañana · ' + fechaCorta(MATCH) }
-    ];
-    groups.forEach(function(g){
-      var h = document.createElement('p');
-      h.className = 'daylabel';
-      h.textContent = g.label;
-      planEl.appendChild(h);
+    var head = document.createElement('p');
+    head.className = 'daylabel';
+    head.textContent = fechaCorta(MATCH) + ' · del desayuno al partido';
+    planEl.appendChild(head);
 
-      var ol = document.createElement('ul');
-      ol.className = 'plan';
-      PLAN.forEach(function(p, i){
-        if(p.off !== g.off) return;
-        var li = document.createElement('li');
-        li.innerHTML = '<span class="when"></span><span class="dot"></span>' +
-                       '<span class="what"><b></b><em></em></span>';
-        li.querySelector('.when').textContent = pad(p.h) + ':' + pad(p.m);
-        li.querySelector('.what b').textContent = p.title;
-        li.querySelector('.what em').textContent = p.text;
-        ol.appendChild(li);
-        planRows[i] = li;
-      });
-      planEl.appendChild(ol);
+    var ol = document.createElement('ul');
+    ol.className = 'plan';
+    PLAN.forEach(function(p, i){
+      var li = document.createElement('li');
+      li.innerHTML = '<span class="when"></span><span class="dot"></span>' +
+                     '<span class="what"><b></b><em></em></span>';
+      li.querySelector('.when').textContent = pad(p.h) + ':' + pad(p.m);
+      li.querySelector('.what b').textContent = p.title;
+      li.querySelector('.what em').textContent = p.text;
+      ol.appendChild(li);
+      planRows[i] = li;
     });
+    planEl.appendChild(ol);
   })();
 
   /* ---------- estado compartido (misma API que antes) ---------- */
 
-  /* Cada vaso es un momento del día, no una unidad suelta. La víspera la fila
-     arranca a las 15:00, así que cubre de ahí a la cama; el día del partido
-     cubre desde el desayuno. Un vaso son unos 250 ml. Entre las 18:00 y las
-     19:30 no hay ninguno a propósito: es la franja en la que tomar de más te
-     hace parar a hacer pis. */
+  /* Cada vaso es un momento del día, no una unidad suelta. Un vaso son unos
+     250 ml. El grueso cae en el hueco de la tarde, que es donde se llega
+     deshidratado sin darse cuenta; entre las 20:00 y las 22:00 no hay ninguno
+     a propósito, porque tomar de más ahí te hace parar a hacer pis. */
   var SCHED = {
-    eve: [
-      [15,0,'arranque'], [16,30,'media tarde'], [18,0,'merienda'],
-      [19,30,'previa cena'], [21,0,'cena'], [22,30,'antes de dormir']
-    ],
-    match: [
-      [8,0,'desayuno'], [10,0,'media mañana'], [12,0,'mediodía'], [13,0,'almuerzo'],
-      [15,0,'media tarde'], [16,30,'antes del snack'], [18,0,'última carga'], [19,30,'el corto']
+    day: [
+      [10,0,'desayuno'], [11,30,'media mañana'], [13,0,'almuerzo'],
+      [15,0,'media tarde'], [16,30,'merienda'], [18,0,'el hueco'],
+      [19,0,'la comida'], [22,0,'el corto']
     ]
   };
 
@@ -545,7 +531,7 @@
   var token = null;
   var offline = false;
 
-  var ROSTER_FALLBACK = ['Joaco','Jere','Maxi','Yago','Nacho'];
+  var ROSTER_FALLBACK = ['Joaco','Jere','Maxi','Yago','Nacho','Tomi'];
 
   var waterHint = document.getElementById('waterHint');
   var chipsEl = document.getElementById('chips');
@@ -569,17 +555,15 @@
     return null;
   }
 
-  /** Los vasos de un día: off = -1 la víspera, 0 el día del partido. */
-  function slotsOf(off){
-    return (off === 0 ? SCHED.match : SCHED.eve)
+  /** Los vasos del día, ya como Date. */
+  function slotsOf(){
+    return SCHED.day
       .slice(0, SERVER_GOAL)   // el worker no guarda más vasos que su GOAL
-      .map(function(s){ return { t: day(off, s[0], s[1]), name: s[2] }; });
+      .map(function(s){ return { t: day(0, s[0], s[1]), name: s[2] }; });
   }
 
-  function isMatchDay(){ return new Date() >= day(0,0,0); }
-
   function buildSched(){
-    sched = slotsOf(isMatchDay() ? 0 : -1);
+    sched = slotsOf();
     TARGET = sched.length;
     schedDay = new Date().toDateString();
     loadSlots();
@@ -763,39 +747,24 @@
   }
 
   /** Dibuja los dos días seguidos: el de hoy se puede tocar, el otro no. */
+  /** Una sola fila: los 8 vasos del día, todos tocables. */
   function renderRail(exp){
-    var matchDay = isMatchDay();
-    var groups = [
-      { off:-1, label:'hoy',     slots: matchDay ? slotsOf(-1) : sched, active: !matchDay },
-      { off:0,  label:'mañana',  slots: matchDay ? sched : slotsOf(0),  active: matchDay }
-    ];
-    if(matchDay) groups[0].label = 'ayer';
-    if(matchDay) groups[1].label = 'hoy · partido';
-
-    var sig = groups.map(function(g){
-      return g.label + ':' + g.slots.map(function(s){ return s.t.getTime(); }).join('-');
-    }).join('|');
+    var sig = sched.map(function(s){ return s.t.getTime(); }).join('-');
 
     if(railEl.dataset.sig !== sig){
       railEl.dataset.sig = sig;
-      railEl.innerHTML = groups.map(function(g){
-        return '<span class="daymark">' + g.label + '</span>' +
-               g.slots.map(function(s, i){ return cellHTML(s, i, g.active); }).join('');
-      }).join('');
+      railEl.innerHTML = '<span class="daymark">el día</span>' +
+        sched.map(function(s, i){ return cellHTML(s, i, true); }).join('');
     }
 
-    var cells = railEl.querySelectorAll('.gcell');
-    var offset = groups[0].active ? 0 : groups[0].slots.length;
-    Array.prototype.forEach.call(cells, function(cell, k){
-      var i = k - offset;
-      if(i < 0 || i >= slots.length) return;   // el día que no se toca
+    Array.prototype.forEach.call(railEl.querySelectorAll('.gcell'), function(cell, i){
+      if(i >= slots.length) return;
       cell.setAttribute('aria-pressed', slots[i] ? 'true' : 'false');
       cell.classList.toggle('late', !slots[i] && i < exp);
     });
 
-    var total = groups[0].slots.length + groups[1].slots.length;
-    railLabel.textContent = 'tocá el vaso que ya tomaste · ' + total + ' entre los dos días, ' +
-      'unos ' + (Math.round(total * 0.25 * 10) / 10) + ' litros';
+    railLabel.textContent = 'tocá el vaso que ya tomaste · ' + sched.length +
+      ' en el día, unos ' + (Math.round(sched.length * 0.25 * 10) / 10) + ' litros';
   }
 
   function renderMine(){
@@ -919,7 +888,10 @@
     var next = PLAN[idx+1] || null;
 
     document.body.dataset.tag = cur ? cur.tag : 'agua';
-    document.body.dataset.night = (cur && cur.tag === 'noche') ? 'true' : 'false';
+    /* ya no hay fase de sueño: la página se oscurece por hora, y el partido
+       de las 22:30 se juega de noche igual */
+    var hr = now.getHours();
+    document.body.dataset.night = (hr >= 20 || hr < 7) ? 'true' : 'false';
 
     Array.prototype.forEach.call(gauge.querySelectorAll('.tick'), function(el){
       el.classList.toggle('on', now >= Number(el.dataset.at));
@@ -936,7 +908,7 @@
 
     if(!cur){
       phaseTitle.textContent = 'Todavía no arranca';
-      phaseText.textContent = 'El plan empieza hoy a las 15:00. Hasta ahí, comé y tomá normal.';
+      phaseText.textContent = 'El plan empieza a las 10:00 con el desayuno. Hasta ahí, dormí.';
       phaseSub.textContent = 'Faltan ' + faltan(START - now) + ' para eso.';
     } else if(now >= END){
       phaseTitle.textContent = 'Listo';
